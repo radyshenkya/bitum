@@ -4,7 +4,6 @@ _RENAME_PATTERN = re.compile(r'(?<!^)(?=[A-Z])')
 
 
 class EventType:
-
     @classmethod
     def name(cls):
         """Получить имя класса в стиле `snake_case`"""
