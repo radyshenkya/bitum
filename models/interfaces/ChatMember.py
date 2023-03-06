@@ -16,11 +16,28 @@ class ChatMember:
     def id(self) -> int:
         raise NotImplementedError()
     
-    def chat(self) -> Chat:
+    async def chat(self) -> Chat:
         raise NotImplementedError()
 
-    def sender(self) -> User:
+    async def user(self) -> User:
         raise NotImplementedError()
 
     def permissions(self) -> ChatMemberPermissions:
         raise NotImplementedError()
+    
+    async def set_permissions(self, new_permissions: ChatMemberPermissions):
+        raise NotImplementedError()
+    
+    async def delete(self):
+        raise NotImplementedError()
+    
+    @classmethod
+    async def get_by_chat_and_user(cls, chat_id: int, user_id: int):
+        raise NotImplementedError()
+
+    async def to_dict(self) -> dict:
+        return {
+            'id': self.id(),
+            'user': await (await self.user()).to_dict(),
+            'chat': await (await self.chat()).to_dict()
+        }

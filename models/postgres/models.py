@@ -1,14 +1,13 @@
-from typing import Iterable, Union
+from typing import Iterable, List, Union
 from json import loads, dumps
-from ..interfaces import User as IUser, Chat as IChat, ChatMember as IChatMember, ChatMessage as IChatMessage, Event as IEvent
+from ..interfaces import User as IUser, Chat as IChat, ChatMember as IChatMember, ChatMessage as IChatMessage, ChatMemberPermissions, Event as IEvent
 from .database import PgUser, PgChat, PgChatMember, PgChatMessage, PgEvent, objects
 from bcrypt import hashpw, checkpw, gensalt
 
 UTF_8 = 'utf-8'
 
 class User(IUser):
-    def __init__(self, id: int, username: str, db_model: PgUser, password: str | None = None, email: str | None = None, is_bot: bool = False, creator_id: int | None = None) -> None:
-        self.db_model = db_model
+    def __init__(self, id: int, username: str, password: str | None = None, email: str | None = None, is_bot: bool = False, creator_id: int | None = None) -> None:
         self._id = id
         self._username = username
         self._password = password
@@ -16,8 +15,8 @@ class User(IUser):
         self._is_bot = is_bot
         self._creator_id = creator_id
     
-    @staticmethod
-    async def new(username: str, password: str, email: str) -> "User":
+    @classmethod
+    async def new(cls, username: str, password: str, email: str) -> "User":
         hashed_password = hashpw(bytes(password, UTF_8), gensalt()).decode(UTF_8)
         new_user = await objects.create(
             PgUser,
@@ -27,18 +26,14 @@ class User(IUser):
         )
         return User.from_db_model(new_user)
     
-    @staticmethod
-    async def new_bot(username: str, creator: "User") -> "User":
-        print(creator.username())
-        print(creator.db_model.username)
+    @classmethod
+    async def new_bot(cls, username: str, creator: "User") -> "User":
         new_user = await objects.create(
             PgUser,
             username=username,
             creator_id=creator.id(),
             is_bot=True,
         )
-        print(creator.db_model.id)
-        print(new_user.creator_id)
         return User.from_db_model(new_user)
     
     def id(self) -> int:
@@ -61,6 +56,11 @@ class User(IUser):
     def compare_password(self, raw_password: str) -> bool:
         return checkpw(bytes(raw_password, UTF_8), bytes(self._password, UTF_8))
 
+    async def set_password(self, value: str):
+        hashed_password = hashpw(bytes(value, UTF_8), gensalt()).decode(UTF_8)
+        await objects.execute(PgUser.update(password=hashed_password).where(PgUser.id == self.id()))
+        self._password = hashed_password
+
     def is_bot(self) -> bool:
         return self._is_bot
     
@@ -75,6 +75,31 @@ class User(IUser):
         creator_user = await objects.get(PgUser, id=self._creator_id)
         return self.from_db_model(creator_user)
 
+    async def delete(self):
+        await objects.delete((await objects.get(PgUser, id=self.id())), recursive=True)
+
+    @classmethod
+    async def search_users(cls, username: str, offset: int = 0, limit: int = 10) -> Iterable["User"]:
+        users = await objects.execute(
+            PgUser.select().where(
+                (PgUser.username % f'%{username}%') &
+                ~(PgUser.is_bot)
+            ).offset(offset).limit(limit)
+        )
+
+        return [User.from_db_model(el) for el in users]
+    
+    @classmethod
+    async def search_bots(cls, username: str, offset: int = 0, limit: int = 10) -> Iterable["User"]:
+        users = await objects.execute(
+            PgUser.select().where(
+                (PgUser.username % f'%{username}%') &
+                (PgUser.is_bot)
+            ).offset(offset).limit(limit)
+        )
+
+        return [User.from_db_model(el) for el in users]
+
     @classmethod
     async def get_by_id(cls, id: int) -> "User":
         user = await objects.get(PgUser, id=id)
@@ -88,9 +113,172 @@ class User(IUser):
             password=db_model.password,
             email=db_model.email,
             is_bot=db_model.is_bot,
-            creator_id=db_model.creator_id,
-            db_model=db_model
+            creator_id=db_model.creator_id
         )
+
+
+class Chat(IChat):
+    def __init__(self, id: int, name: str, owner_id: int) -> None:
+        self._id = id
+        self._name = name
+        self._owner_id = owner_id
+
+    def id(self) -> int:
+        return self._id
+    
+    def name(self) -> str:
+        return self._name
+    
+    async def send_message(self, sender: User, content: str, files: List[str]) -> "ChatMessage":
+        new_msg = await objects.create(
+            PgChatMessage,
+            sender_id=sender.id(),
+            content=content,
+            chat_id=self.id(),
+            files=ChatMessage.FILES_SPLITTER.join(files)
+        )
+    
+    async def set_name(self, value: str):
+        await objects.execute(PgChat.update(name=value).where(PgChat.id == self.id()))
+        self._name = value
+
+    async def owner(self) -> User:
+        return await User.get_by_id(self._owner_id)
+    
+    async def set_owner(self, user: User):
+        await objects.execute(PgChat.update(owner_id=user.id()).where(PgChat.id == self.id()))
+    
+    async def members(self) -> Iterable["ChatMember"]:
+        members = await objects.execute(PgChatMember.filter((PgChatMember.chat_id == self.id)))
+        return [ChatMember.from_db_model(el) for el in members]
+    
+    async def delete(self):
+        await objects.delete((await objects.get(PgChat, id=self.id())), recursive=True)
+
+    async def messages(self, offset: int, limit: int) -> Iterable["ChatMessage"]:
+        messages = await objects.execute(
+            PgChatMessage.select().where(
+                (PgChatMessage.chat_id == self.id())
+            ).offset(offset).limit(limit)
+        )
+
+        return [ChatMessage.from_db_model(el) for el in messages]
+    
+    @classmethod
+    async def get_by_id(cls, id: int) -> "Chat":
+        chat = await objects.get(PgChat, id=id)
+        return cls.from_db_model(chat)
+    
+    @staticmethod
+    def from_db_model(db_model: PgChat):
+        return Chat(
+            db_model.id,
+            db_model.name,
+            db_model.owner_id
+        )
+    
+
+class ChatMember(IChatMember):
+    def __init__(self, id: int, chat_id: int, user_id: int, permissions: ChatMemberPermissions) -> None:
+        self._id = id
+        self._chat_id = chat_id
+        self._user_id = user_id
+        self._permissions = permissions
+    
+    def id(self) -> int:
+        return self._id
+    
+    async def chat(self) -> Chat:
+        return await Chat.get_by_id(self._chat_id)
+    
+    async def user(self) -> User:
+        return await User.get_by_id(self._user_id)
+    
+    def permissions(self) -> ChatMemberPermissions:
+        return self._permissions
+    
+    async def set_permissions(self, value: ChatMemberPermissions):
+        await objects.execute(
+            PgChatMember.update(
+                can_write = value.can_write,
+                can_add_members = value.can_add_members,
+                can_kick_members = value.can_kick_members
+            ).where(
+                PgChatMember.id == self.id()
+            )
+        )
+        
+        self._permissions = value
+
+    async def delete(self):
+        await objects.delete(await objects.get(PgChatMember, id=self.id()), recursive=True)
+
+    @classmethod
+    async def get_by_chat_and_user(cls, chat_id: int, user_id: int):
+        member = await objects.get(PgChatMember, chat_id=chat_id, user_id=user_id)
+        return ChatMember.from_db_model(member)
+
+    @staticmethod
+    def from_db_model(db_model: PgChatMember) -> "ChatMember":
+        return ChatMember(
+            db_model.id,
+            db_model.chat_id,
+            db_model.user_id,
+            ChatMemberPermissions(
+                db_model.can_write,
+                db_model.can_add_members,
+                db_model.can_kick_members
+            )
+        )
+    
+class ChatMessage(IChatMessage):
+    FILES_SPLITTER = ";"
+
+    def __init__(self, id: int, sender_id: int, chat_id: int, content: str, created_timestamp: float, files: List[str]) -> None:
+        self._id = id
+        self._sender_id = sender_id
+        self._chat_id = chat_id
+        self._content = content
+        self._created_timestamp = created_timestamp
+        self._files = files
+
+    def id(self) -> int:
+        return self._id
+    
+    async def chat(self) -> Chat:
+        return await Chat.get_by_id(self._chat_id)
+    
+    async def sender(self) -> User:
+        return await User.get_by_id(self._sender_id)
+    
+    def content(self) -> str:
+        return self._content
+    
+    def file_names(self) -> Iterable[str]:
+        return self._files
+    
+    async def set_content(self, value: str):
+        await objects.execute(PgChatMessage.update(content=value).where(PgChatMessage.id == self.id()))
+        self._content = value
+    
+    def timestamp(self) -> float:
+        return self._created_timestamp
+    
+    @staticmethod
+    def from_db_model(db_model: PgChatMessage):
+        return ChatMessage(
+            db_model.id,
+            db_model.sender_id,
+            db_model.chat_id,
+            db_model.content,
+            db_model.created_timestamp,
+            db_model.files.split(ChatMessage.FILES_SPLITTER)
+        )
+    
+    @classmethod
+    async def get_by_id(cls, id: int) -> "ChatMessage":
+        message = await objects.get(PgChatMessage, id=id)
+        return cls.from_db_model(message)
 
 
 class Event(IEvent):

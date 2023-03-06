@@ -8,7 +8,7 @@ class Event:
     def id(self) -> int:
         raise NotImplementedError()
     
-    def receiver(self) -> User:
+    async def receiver(self) -> User:
         raise NotImplementedError()
     
     def is_read(self) -> bool:
@@ -20,5 +20,5 @@ class Event:
     def payload(self) -> dict:
         raise NotImplementedError()
     
-    def mark_as_read(self):
+    async def mark_as_read(self):
         raise NotImplementedError()

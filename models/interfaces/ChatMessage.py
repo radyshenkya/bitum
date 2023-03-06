@@ -10,10 +10,10 @@ class ChatMessage:
     def id(self) -> int:
         raise NotImplementedError()
 
-    def chat(self) -> Chat:
+    async def chat(self) -> Chat:
         raise NotImplementedError()
 
-    def owner(self) -> User:
+    async def sender(self) -> User:
         raise NotImplementedError()
 
     def content(self) -> str:
@@ -22,8 +22,24 @@ class ChatMessage:
     def file_names(self) -> Iterable[str]:
         raise NotImplementedError()
     
-    def set_content(self, value: str):
+    async def set_content(self, value: str):
         raise NotImplementedError()
     
     def timestamp(self) -> float:
         raise NotImplementedError()
+    
+    async def delete(self):
+        raise NotImplementedError()
+    
+    @classmethod
+    async def get_by_id(cls, id: int) -> "ChatMessage":
+        raise NotImplementedError()
+
+    async def to_dict(self) -> dict:
+        return {
+            'id': self.id(),
+            'sender': await (await self.user()).to_dict(),
+            'chat': await (await self.chat()).to_dict(),
+            'content': self.content(),
+            'files': [el for el in self.file_names()]
+        }
