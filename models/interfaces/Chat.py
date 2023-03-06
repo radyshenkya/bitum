@@ -32,6 +32,9 @@ class Chat:
     async def set_owner(self, user: User):
         raise NotImplementedError()
     
+    async def add_member(self, user: User) -> "ChatMember":
+        raise NotImplementedError()
+
     async def members(self) -> Iterable["ChatMember"]:
         raise NotImplementedError()
     

@@ -39,6 +39,11 @@ class PgChatMember(BaseModel):
     can_add_members = peewee.BooleanField(default=True)
     can_kick_members = peewee.BooleanField(default=False)
 
+    class Meta:
+        database = database
+        constraints = [
+            peewee.SQL('UNIQUE (user_id, chat_id)')
+        ]
 
 class PgChatMessage(BaseModel):
     sender = peewee.ForeignKeyField(PgUser, backref='user_messages', on_delete='CASCADE')

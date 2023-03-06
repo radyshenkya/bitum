@@ -137,6 +137,8 @@ class Chat(IChat):
             chat_id=self.id(),
             files=ChatMessage.FILES_SPLITTER.join(files)
         )
+
+        return ChatMessage.from_db_model(new_msg)
     
     async def set_name(self, value: str):
         await objects.execute(PgChat.update(name=value).where(PgChat.id == self.id()))
@@ -152,6 +154,10 @@ class Chat(IChat):
         members = await objects.execute(PgChatMember.filter((PgChatMember.chat_id == self.id)))
         return [ChatMember.from_db_model(el) for el in members]
     
+    async def add_member(self, user: User) -> "ChatMember":
+        new_member = await objects.create(PgChatMember, user_id=user.id(), chat_id=self.id())
+        return ChatMember.from_db_model(new_member)
+
     async def delete(self):
         await objects.delete((await objects.get(PgChat, id=self.id())), recursive=True)
 
