@@ -1,9 +1,11 @@
+from http import HTTPStatus
 from typing import Iterable, List, Union
 from json import loads, dumps
-from ..interfaces import User as IUser, Chat as IChat, ChatMember as IChatMember, ChatMessage as IChatMessage, ChatMemberPermissions, Event as IEvent
+from ..interfaces import User as IUser, Chat as IChat, ChatMember as IChatMember, ChatMessage as IChatMessage, ChatMemberPermissions, ModelError, Event as IEvent
 from .database import PgUser, PgChat, PgChatMember, PgChatMessage, PgEvent, objects
 from ..events import MemberAdded, MemberKicked, NewMessage
 from bcrypt import hashpw, checkpw, gensalt
+import peewee
 
 UTF_8 = 'utf-8'
 
@@ -17,6 +19,7 @@ class User(IUser):
         self._creator_id = creator_id
     
     @classmethod
+    @ModelError.wrap_async_exception(peewee.IntegrityError, HTTPStatus.CONFLICT, "User already exists")
     async def new(cls, username: str, password: str, email: str) -> "User":
         hashed_password = hashpw(bytes(password, UTF_8), gensalt()).decode(UTF_8)
         new_user = await objects.create(
@@ -28,6 +31,7 @@ class User(IUser):
         return User.from_db_model(new_user)
     
     @classmethod
+    @ModelError.wrap_async_exception(peewee.IntegrityError, HTTPStatus.CONFLICT, "Bot already exists")
     async def new_bot(cls, username: str, creator: "User") -> "User":
         new_user = await objects.create(
             PgUser,

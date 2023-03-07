@@ -1,29 +1,13 @@
-import asyncio
-from models.postgres.models import User, Chat, Event
+from flask import Flask
+from api.endpoints import api
 
-async def main():
-    user: User = (await User.search_users("test"))[0]
-    
-    for chat in await user.chats():
-        print(chat.name())
+app = Flask(__name__)
+app.register_blueprint(api, url_prefix='/api')
 
-        for member in await chat.members():
-            print('MEMBER: ', (await member.user()).username())
+@app.route('/')
+@app.route('/index')
+async def index():
+    return "Aboba!"
 
-        for message in await chat.messages(0, 10):
-            print('MSG: ', message.content())
-
-
-    # for event in await user.get_unread_events():
-    #     print(event.payload())
-    #     await event.mark_as_read()
-
-    # user = await User.new("test", "test", "test@example.com")
-    # chat: Chat = await Chat.new("test chat", user)
-    # await chat.send_message(user, "Hello World!", ['aboba.png', 'piska.png'])
-
-    # bot = await User.new_bot("test_bot", user)
-    # await chat.add_member(bot)
-    # await chat.send_message(bot, "hello world from bot!", [])
-
-asyncio.run(main())
+if __name__ == "__main__":
+    app.run(port=8080, host='127.0.0.1')
