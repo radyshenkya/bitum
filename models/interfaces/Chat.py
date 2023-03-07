@@ -20,7 +20,7 @@ class Chat:
     def name(self) -> str:
         raise NotImplementedError()
     
-    async def send_message(self, sender: User, content: str, files: List[str]) -> ChatMessage:
+    async def send_message(self, sender: User, content: str, files: List[str]) -> "ChatMessage":
         raise NotImplementedError()
     
     async def set_name(self, value: str):

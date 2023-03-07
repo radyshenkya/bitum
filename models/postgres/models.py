@@ -2,6 +2,7 @@ from typing import Iterable, List, Union
 from json import loads, dumps
 from ..interfaces import User as IUser, Chat as IChat, ChatMember as IChatMember, ChatMessage as IChatMessage, ChatMemberPermissions, Event as IEvent
 from .database import PgUser, PgChat, PgChatMember, PgChatMessage, PgEvent, objects
+from ..events import MemberAdded, MemberKicked, NewMessage
 from bcrypt import hashpw, checkpw, gensalt
 
 UTF_8 = 'utf-8'
@@ -74,9 +75,14 @@ class User(IUser):
         
         creator_user = await objects.get(PgUser, id=self._creator_id)
         return self.from_db_model(creator_user)
+    
+    async def chats(self) -> Iterable["Chat"]:
+        chat_members = [ChatMember.from_db_model(el) for el in await objects.execute(PgChatMember.filter((PgChatMember.user_id == self.id())))]
+        chats = [await el.chat() for el in chat_members]
+        return chats
 
     async def delete(self):
-        await objects.delete((await objects.get(PgUser, id=self.id())), recursive=True)
+        await objects.delete((await objects.get(PgUser, id=self.id())), recursive=True, delete_nullable=True)
 
     @classmethod
     async def search_users(cls, username: str, offset: int = 0, limit: int = 10) -> Iterable["User"]:
@@ -129,8 +135,22 @@ class Chat(IChat):
     def name(self) -> str:
         return self._name
     
+    @classmethod
+    async def new(cls, name: str, owner: User):
+        pg_chat = await objects.create(
+            PgChat,
+            name=name,
+            owner_id=owner.id()
+        )
+
+        chat = Chat.from_db_model(pg_chat)
+        chat_member = await chat.add_member(owner)
+        await chat_member.set_permissions(ChatMemberPermissions(True, True, True))
+
+        return chat
+
     async def send_message(self, sender: User, content: str, files: List[str]) -> "ChatMessage":
-        new_msg = await objects.create(
+        pg_message = await objects.create(
             PgChatMessage,
             sender_id=sender.id(),
             content=content,
@@ -138,7 +158,12 @@ class Chat(IChat):
             files=ChatMessage.FILES_SPLITTER.join(files)
         )
 
-        return ChatMessage.from_db_model(new_msg)
+        message = ChatMessage.from_db_model(pg_message)
+
+        event_payload = await NewMessage(message).to_dict()
+        await self.send_event_to_members(event_payload)
+
+        return message
     
     async def set_name(self, value: str):
         await objects.execute(PgChat.update(name=value).where(PgChat.id == self.id()))
@@ -151,12 +176,16 @@ class Chat(IChat):
         await objects.execute(PgChat.update(owner_id=user.id()).where(PgChat.id == self.id()))
     
     async def members(self) -> Iterable["ChatMember"]:
-        members = await objects.execute(PgChatMember.filter((PgChatMember.chat_id == self.id)))
+        members = await objects.execute(PgChatMember.filter((PgChatMember.chat_id == self.id())))
         return [ChatMember.from_db_model(el) for el in members]
     
     async def add_member(self, user: User) -> "ChatMember":
-        new_member = await objects.create(PgChatMember, user_id=user.id(), chat_id=self.id())
-        return ChatMember.from_db_model(new_member)
+        pg_member = await objects.create(PgChatMember, user_id=user.id(), chat_id=self.id())
+        member = ChatMember.from_db_model(pg_member)
+
+        event_payload = await MemberAdded(member).to_dict()
+        await self.send_event_to_members(event_payload)
+        return member
 
     async def delete(self):
         await objects.delete((await objects.get(PgChat, id=self.id())), recursive=True)
@@ -165,11 +194,16 @@ class Chat(IChat):
         messages = await objects.execute(
             PgChatMessage.select().where(
                 (PgChatMessage.chat_id == self.id())
-            ).offset(offset).limit(limit)
+            ).order_by(PgChatMessage.id.desc()).offset(offset).limit(limit)
         )
 
         return [ChatMessage.from_db_model(el) for el in messages]
     
+    async def send_event_to_members(self, event_payload: dict):
+        for chat_member in await self.members():
+            user = await chat_member.user()
+            await Event.new(user, event_payload)
+
     @classmethod
     async def get_by_id(cls, id: int) -> "Chat":
         chat = await objects.get(PgChat, id=id)
@@ -217,7 +251,10 @@ class ChatMember(IChatMember):
         self._permissions = value
 
     async def delete(self):
+        chat = await self.chat()
+        event_payload = await MemberKicked(await self.user(), chat).to_dict()
         await objects.delete(await objects.get(PgChatMember, id=self.id()), recursive=True)
+        await chat.send_event_to_members(event_payload)
 
     @classmethod
     async def get_by_chat_and_user(cls, chat_id: int, user_id: int):
@@ -295,7 +332,8 @@ class Event(IEvent):
         self._timestamp = timestamp
         self._payload = payload
     
-    async def new(self, receiver: IUser, payload: dict) -> IEvent:
+    @classmethod
+    async def new(cls, receiver: IUser, payload: dict) -> IEvent:
         str_payload = dumps(payload)
         
         new_event = await objects.create(

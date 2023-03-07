@@ -17,5 +17,5 @@ class EventType:
         """Получить весь ивент словарем"""
         return {
             "type": self.name(),
-            "data": self.data_to_dict()
+            "data": await self.data_to_dict()
         }

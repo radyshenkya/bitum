@@ -38,7 +38,7 @@ class ChatMessage:
     async def to_dict(self) -> dict:
         return {
             'id': self.id(),
-            'sender': await (await self.user()).to_dict(),
+            'sender': await (await self.sender()).to_dict(),
             'chat': await (await self.chat()).to_dict(),
             'content': self.content(),
             'files': [el for el in self.file_names()]

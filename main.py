@@ -1,16 +1,29 @@
 import asyncio
-from models.postgres.models import User, Event
+from models.postgres.models import User, Chat, Event
 
 async def main():
-    # user = await User.new("bluered", "aboba", "aboba@tochka.sry")
-    user = await User.get_by_id(1)
-    print(user.compare_password('aboba'))
-    bot = await User.new_bot('abobka_bot1', user)
-    print(bot.is_bot())
-    creator = await bot.creator()
-    if not creator is None:
-        print(creator.id(), creator.username())
-    else:
-        print("creator is none")
+    user: User = (await User.search_users("test"))[0]
+    
+    for chat in await user.chats():
+        print(chat.name())
+
+        for member in await chat.members():
+            print('MEMBER: ', (await member.user()).username())
+
+        for message in await chat.messages(0, 10):
+            print('MSG: ', message.content())
+
+
+    # for event in await user.get_unread_events():
+    #     print(event.payload())
+    #     await event.mark_as_read()
+
+    # user = await User.new("test", "test", "test@example.com")
+    # chat: Chat = await Chat.new("test chat", user)
+    # await chat.send_message(user, "Hello World!", ['aboba.png', 'piska.png'])
+
+    # bot = await User.new_bot("test_bot", user)
+    # await chat.add_member(bot)
+    # await chat.send_message(bot, "hello world from bot!", [])
 
 asyncio.run(main())
