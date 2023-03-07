@@ -5,6 +5,7 @@ if TYPE_CHECKING:
     from .ChatMember import ChatMember
     from .ChatMessage import ChatMessage
 
+
 class Chat:
     """
     Интерфейс модели чата
@@ -16,28 +17,28 @@ class Chat:
 
     def id(self) -> int:
         raise NotImplementedError()
-    
+
     def name(self) -> str:
         raise NotImplementedError()
-    
+
     def send_message(self, sender: User, content: str, files: List[str]) -> "ChatMessage":
         raise NotImplementedError()
-    
+
     def set_name(self, value: str):
         raise NotImplementedError()
 
     def owner(self) -> User:
         raise NotImplementedError()
-    
+
     def set_owner(self, user: User):
         raise NotImplementedError()
-    
+
     def add_member(self, user: User) -> "ChatMember":
         raise NotImplementedError()
 
     def members(self) -> Iterable["ChatMember"]:
         raise NotImplementedError()
-    
+
     def messages(self, offset: int, limit: int) -> Iterable["ChatMessage"]:
         raise NotImplementedError()
 
@@ -47,7 +48,7 @@ class Chat:
     @classmethod
     def get_by_id(cls, id: int) -> "Chat":
         raise NotImplementedError()
-    
+
     def to_dict(self) -> dict:
         return {
             'id': self.id(),

@@ -35,6 +35,7 @@ def validate_and_parse_jwt(token: str) -> Dict[str, Any]:
     payload = jwt.decode(token, JWT_HS256_SECRET, algorithms=["HS256"])
     return payload
 
+
 def get_user_from_jwt(function):
     @wraps(function)
     def wrapper(*args, **kwargs):
@@ -47,8 +48,8 @@ def get_user_from_jwt(function):
             assert user.last_login_timestamp() == parsed['login_time']
 
             return function(*args, **kwargs, user=user)
-        
+
         except Exception as e:
             raise ApiError(HTTPStatus.UNAUTHORIZED, 'Unauthorized', e)
-    
+
     return wrapper

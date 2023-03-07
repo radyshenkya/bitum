@@ -1,6 +1,7 @@
 from ..interfaces import User, Chat
 from .EventType import EventType
 
+
 class MemberKicked(EventType):
     def __init__(self, user: User, chat: Chat) -> None:
         self._user = user

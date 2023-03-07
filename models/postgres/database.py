@@ -13,6 +13,7 @@ database = peewee.PostgresqlDatabase(
     port=int(environ["DB_PORT"])
 )
 
+
 class BaseModel(peewee.Model):
     class Meta:
         database = database
@@ -33,8 +34,10 @@ class DbChat(BaseModel):
 
 
 class DbChatMember(BaseModel):
-    user = peewee.ForeignKeyField(DbUser, backref='user_in_chat', on_delete='CASCADE')
-    chat = peewee.ForeignKeyField(DbChat, backref='chat_members', on_delete='CASCADE')
+    user = peewee.ForeignKeyField(
+        DbUser, backref='user_in_chat', on_delete='CASCADE')
+    chat = peewee.ForeignKeyField(
+        DbChat, backref='chat_members', on_delete='CASCADE')
     can_write = peewee.BooleanField(default=True)
     can_add_members = peewee.BooleanField(default=True)
     can_kick_members = peewee.BooleanField(default=False)
@@ -45,18 +48,23 @@ class DbChatMember(BaseModel):
             peewee.SQL('UNIQUE (user_id, chat_id)')
         ]
 
+
 class DbChatMessage(BaseModel):
-    sender = peewee.ForeignKeyField(DbUser, backref='user_messages', on_delete='CASCADE')
-    chat = peewee.ForeignKeyField(DbChat, backref='chat_messages', on_delete='CASCADE')
+    sender = peewee.ForeignKeyField(
+        DbUser, backref='user_messages', on_delete='CASCADE')
+    chat = peewee.ForeignKeyField(
+        DbChat, backref='chat_messages', on_delete='CASCADE')
     content = peewee.TextField(null=False)
     created_timestamp = peewee.FloatField(default=time.time)
     files = peewee.TextField(default='')
 
 
 class DbEvent(BaseModel):
-    user = peewee.ForeignKeyField(DbUser, backref='events', on_delete='CASCADE')
+    user = peewee.ForeignKeyField(
+        DbUser, backref='events', on_delete='CASCADE')
     created_timestamp = peewee.FloatField(default=time.time)
     is_read = peewee.BooleanField(default=False)
     payload = peewee.TextField(null=False)
+
 
 database.create_tables([DbUser, DbChat, DbChatMember, DbChatMessage, DbEvent])

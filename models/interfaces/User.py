@@ -20,63 +20,63 @@ class User:
 
     def id(self) -> int:
         raise NotImplementedError()
-    
+
     def username(self) -> str:
         raise NotImplementedError()
 
     def email(self) -> str:
         raise NotImplementedError()
-    
+
     def set_email(self, value: str):
         raise NotImplementedError()
 
     def compare_password(self, raw_password: str) -> bool:
         """Сравнить пароль с паролем пользователя"""
         raise NotImplementedError()
-    
+
     def set_password(self, value: str):
         raise NotImplementedError()
 
     def get_unread_events(self) -> Iterable["Event"]:
         raise NotImplementedError()
-        
+
     def is_bot(self) -> bool:
         raise NotImplementedError()
 
     def owned_bots(self) -> Iterable["User"]:
         raise NotImplementedError()
-    
+
     def creator(self) -> Union["User", None]:
         raise NotImplementedError()
-    
+
     def chats(self) -> Iterable["Chat"]:
         raise NotImplementedError()
-    
+
     def delete(self):
         raise NotImplementedError()
-    
+
     def last_login_timestamp(self) -> float:
         raise NotImplementedError()
-    
+
     def update_login_timestamp(self):
         raise NotImplementedError()
 
     @classmethod
     def search_users(cls, username: str, offset: int = 0, limit: int = 10) -> Iterable["User"]:
         raise NotImplementedError()
-    
+
     @classmethod
     def search_bots(cls, username: str, offset: int = 0, limit: int = 10) -> Iterable["User"]:
         raise NotImplementedError()
-    
+
     @classmethod
     def get_by_id(cls, id: int) -> "User":
         raise NotImplementedError()
-    
+
     @classmethod
     def get_by_username(cls, username: str) -> "User":
         raise NotImplementedError()
-    
+
     def to_dict(self) -> dict:
         return {
             'id': self.id(),
