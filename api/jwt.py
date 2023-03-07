@@ -44,12 +44,14 @@ def get_user_from_jwt(function):
             parsed = validate_and_parse_jwt(token)
 
             user = User.get_by_id(parsed['user_id'])
-            print(parsed['login_time'])
             assert user.last_login_timestamp() == parsed['login_time']
 
             return function(*args, **kwargs, user=user)
 
-        except Exception as e:
+        except AssertionError as e:
             raise ApiError(HTTPStatus.UNAUTHORIZED, 'Unauthorized', e)
+
+        except Exception as another_e:
+            raise another_e
 
     return wrapper

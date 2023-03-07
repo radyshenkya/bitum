@@ -5,7 +5,10 @@ from flask import Response, jsonify
 from models.interfaces import ApiError
 
 
-def ok(data) -> Response:
+def ok(data=None) -> Response:
+    if data is None:
+        return jsonify({'ok': True})
+
     return jsonify({'ok': True, 'data': data})
 
 
@@ -17,9 +20,12 @@ def only_user(function):
             assert not kwargs['user'].is_bot()
             return function(*args, **kwargs)
 
-        except Exception as e:
+        except AssertionError as e:
             raise ApiError(HTTPStatus.FORBIDDEN,
                            'Bots can not use this method.', e)
+
+        except Exception as e:
+            raise e
 
     return wrapper
 
@@ -32,8 +38,11 @@ def only_bot(function):
             assert kwargs['user'].is_bot()
             return function(*args, **kwargs)
 
-        except Exception as e:
+        except AssertionError as e:
             raise ApiError(HTTPStatus.FORBIDDEN,
                            'Users can not use this method.', e)
+
+        except Exception as e:
+            raise e
 
     return wrapper

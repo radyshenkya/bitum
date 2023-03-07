@@ -104,7 +104,7 @@ class User(IUser):
         return chats
 
     def delete(self):
-        DbUser.delete().where(DbUser.id == self.id())
+        DbUser.delete().where(DbUser.id == self.id()).execute()
 
     @classmethod
     def search_users(cls, username: str, offset: int = 0, limit: int = 10) -> Iterable["User"]:
@@ -213,7 +213,7 @@ class Chat(IChat):
         return member
 
     def delete(self):
-        DbChat.delete().where(DbChat.id == self.id())
+        DbChat.delete().where(DbChat.id == self.id()).execute()
 
     def messages(self, offset: int, limit: int) -> Iterable["ChatMessage"]:
         messages = DbChatMessage.select().where(
@@ -272,7 +272,7 @@ class ChatMember(IChatMember):
     def delete(self):
         chat = self.chat()
         event_payload = MemberKicked(self.user(), chat).to_dict()
-        DbChatMember.delete().where(DbChatMember.id == self.id())
+        DbChatMember.delete().where(DbChatMember.id == self.id()).execute()
         chat.send_event_to_members(event_payload)
 
     @classmethod
