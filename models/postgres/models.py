@@ -1,4 +1,5 @@
 from http import HTTPStatus
+from time import time
 from typing import Iterable, List, Union
 from json import loads, dumps
 from ..interfaces import User as IUser, Chat as IChat, ChatMember as IChatMember, ChatMessage as IChatMessage, ChatMemberPermissions, ApiError, Event as IEvent
@@ -10,13 +11,14 @@ import peewee
 UTF_8 = 'utf-8'
 
 class User(IUser):
-    def __init__(self, id: int, username: str, password: str | None = None, email: str | None = None, is_bot: bool = False, creator_id: int | None = None) -> None:
+    def __init__(self, id: int, username: str, password: str | None = None, email: str | None = None, is_bot: bool = False, creator_id: int | None = None, last_login_timestamp: float = 0) -> None:
         self._id = id
         self._username = username
         self._password = password
         self._email = email
         self._is_bot = is_bot
         self._creator_id = creator_id
+        self._last_login_timestamp = last_login_timestamp
     
     @classmethod
     @ApiError.wrap_exception(peewee.IntegrityError, HTTPStatus.CONFLICT, "User already exists")
@@ -51,8 +53,17 @@ class User(IUser):
         return self._email
     
     def set_email(self, value: str):
-        DbUser.update(email=value).where(DbUser.id == self.id())
+        DbUser.update(email=value).where(DbUser.id == self.id()).execute()
         self._email = value
+
+    def last_login_timestamp(self) -> float:
+        return int(self._last_login_timestamp)
+    
+    def update_login_timestamp(self):
+        new_time = int(time())
+        DbUser.update(last_login_timestamp=new_time).where(DbUser.id == self.id()).execute()
+        self._last_login_timestamp = new_time
+        print(new_time)
 
     def get_unread_events(self) -> Iterable[IEvent]:
         events = DbEvent.filter((DbEvent.is_read==False) & (DbEvent.user_id == self.id()))
@@ -63,7 +74,7 @@ class User(IUser):
 
     def set_password(self, value: str):
         hashed_password = hashpw(bytes(value, UTF_8), gensalt()).decode(UTF_8)
-        DbUser.update(password=hashed_password).where(DbUser.id == self.id())
+        DbUser.update(password=hashed_password).where(DbUser.id == self.id()).execute()
         self._password = hashed_password
 
     def is_bot(self) -> bool:
@@ -126,7 +137,8 @@ class User(IUser):
             password=db_model.password,
             email=db_model.email,
             is_bot=db_model.is_bot,
-            creator_id=db_model.creator_id
+            creator_id=db_model.creator_id,
+            last_login_timestamp=db_model.last_login_timestamp
         )
 
 
@@ -171,14 +183,14 @@ class Chat(IChat):
         return message
     
     def set_name(self, value: str):
-        DbChat.update(name=value).where(DbChat.id == self.id())
+        DbChat.update(name=value).where(DbChat.id == self.id()).execute()
         self._name = value
 
     def owner(self) -> User:
         return User.get_by_id(self._owner_id)
     
     def set_owner(self, user: User):
-        DbChat.update(owner_id=user.id()).where(DbChat.id == self.id())
+        DbChat.update(owner_id=user.id()).where(DbChat.id == self.id()).execute()
     
     def members(self) -> Iterable["ChatMember"]:
         members = DbChatMember.filter((DbChatMember.chat_id == self.id()))
@@ -245,7 +257,7 @@ class ChatMember(IChatMember):
             can_write = value.can_write,
             can_add_members = value.can_add_members,
             can_kick_members = value.can_kick_members
-        ).where(DbChatMember.id == self.id())
+        ).where(DbChatMember.id == self.id()).execute()
         
         self._permissions = value
 
@@ -300,7 +312,7 @@ class ChatMessage(IChatMessage):
         return self._files
     
     def set_content(self, value: str):
-        DbChatMessage.update(content=value).where(DbChatMessage.id == self.id())
+        DbChatMessage.update(content=value).where(DbChatMessage.id == self.id()).execute()
         self._content = value
     
     def timestamp(self) -> float:
@@ -359,7 +371,7 @@ class Event(IEvent):
         return self._payload
     
     def mark_as_read(self):
-        DbEvent.update(is_read=True).where(DbEvent.id == self.id())
+        DbEvent.update(is_read=True).where(DbEvent.id == self.id()).execute()
 
     @staticmethod
     def from_db_model(db_model: DbEvent):

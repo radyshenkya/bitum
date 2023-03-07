@@ -24,6 +24,7 @@ class DbUser(BaseModel):
     password = peewee.CharField(max_length=400, null=True)
     is_bot = peewee.BooleanField(default=False)
     creator = peewee.ForeignKeyField('self', null=True, on_delete='CASCADE')
+    last_login_timestamp = peewee.BigIntegerField(default=0)
 
 
 class DbChat(BaseModel):

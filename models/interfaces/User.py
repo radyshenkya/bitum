@@ -54,6 +54,12 @@ class User:
     
     def delete(self):
         raise NotImplementedError()
+    
+    def last_login_timestamp(self) -> float:
+        raise NotImplementedError()
+    
+    def update_login_timestamp(self):
+        raise NotImplementedError()
 
     @classmethod
     def search_users(cls, username: str, offset: int = 0, limit: int = 10) -> Iterable["User"]:

@@ -35,6 +35,11 @@ def get_user_by_id(user_id: int):
     user = User.get_by_id(user_id)
     return ok(user.to_dict())
 
+@api.route('/user/<string:username>', methods=['GET'], strict_slashes=False)
+def get_user_by_username(username: str):
+    user = User.get_by_username(username)
+    return ok(user.to_dict())
+
 
 @api.route('/user/token', methods=['POST'], strict_slashes=False)
 @expects_json(validation_schemas.CREATE_USER_TOKEN)

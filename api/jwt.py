@@ -3,6 +3,7 @@ from http import HTTPStatus
 import json
 from os import environ
 from datetime import datetime, timedelta, timezone
+import time
 from typing import Any, Dict
 
 from models.interfaces import ApiError
@@ -19,9 +20,12 @@ JWT_TOKEN_COOKIE_NAME = 'api_token'
 
 
 def generate_jwt(user: User) -> str:
+    user.update_login_timestamp()
+
     payload = {
         'exp': datetime.now(timezone.utc) + timedelta(hours=JWT_EXP_HOURS),
-        'user_id': user.id()
+        'user_id': user.id(),
+        'login_time': user.last_login_timestamp()
     }
 
     return jwt.encode(payload, JWT_HS256_SECRET)
@@ -39,6 +43,9 @@ def get_user_from_jwt(function):
             parsed = validate_and_parse_jwt(token)
 
             user = User.get_by_id(parsed['user_id'])
+            print(parsed['login_time'])
+            assert user.last_login_timestamp() == parsed['login_time']
+
             return function(*args, **kwargs, user=user)
         
         except Exception as e:
