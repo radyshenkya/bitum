@@ -6,7 +6,7 @@ app.register_blueprint(api, url_prefix='/api')
 
 @app.route('/')
 @app.route('/index')
-async def index():
+def index():
     return "Aboba!"
 
 if __name__ == "__main__":
