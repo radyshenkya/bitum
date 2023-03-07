@@ -5,4 +5,6 @@ DB_USER=
 DB_PASSWORD=
 DB_HOST=
 DB_PORT=
+
+JWT_SECRET= // Secret phrase for sha256
 ```

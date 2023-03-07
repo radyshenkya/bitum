@@ -1,7 +1,7 @@
 from http import HTTPStatus
 from typing import Iterable, List, Union
 from json import loads, dumps
-from ..interfaces import User as IUser, Chat as IChat, ChatMember as IChatMember, ChatMessage as IChatMessage, ChatMemberPermissions, ModelError, Event as IEvent
+from ..interfaces import User as IUser, Chat as IChat, ChatMember as IChatMember, ChatMessage as IChatMessage, ChatMemberPermissions, ApiError, Event as IEvent
 from .database import DbUser, DbChat, DbChatMember, DbChatMessage, DbEvent
 from ..events import MemberAdded, MemberKicked, NewMessage
 from bcrypt import hashpw, checkpw, gensalt
@@ -19,7 +19,7 @@ class User(IUser):
         self._creator_id = creator_id
     
     @classmethod
-    @ModelError.wrap_exception(peewee.IntegrityError, HTTPStatus.CONFLICT, "User already exists")
+    @ApiError.wrap_exception(peewee.IntegrityError, HTTPStatus.CONFLICT, "User already exists")
     def new(cls, username: str, password: str, email: str) -> "User":
         hashed_password = hashpw(bytes(password, UTF_8), gensalt()).decode(UTF_8)
         new_user = DbUser.create(
@@ -31,7 +31,7 @@ class User(IUser):
         return User.from_db_model(new_user)
     
     @classmethod
-    @ModelError.wrap_exception(peewee.IntegrityError, HTTPStatus.CONFLICT, "Bot already exists")
+    @ApiError.wrap_exception(peewee.IntegrityError, HTTPStatus.CONFLICT, "Bot already exists")
     def new_bot(cls, username: str, creator: "User") -> "User":
         new_user = DbUser.create(
             username=username,
@@ -107,9 +107,15 @@ class User(IUser):
         return [User.from_db_model(el) for el in users]
 
     @classmethod
-    @ModelError.wrap_exception(peewee.DoesNotExist, HTTPStatus.NOT_FOUND, "User does not exists")
+    @ApiError.wrap_exception(peewee.DoesNotExist, HTTPStatus.NOT_FOUND, "User does not exists")
     def get_by_id(cls, id: int) -> "User":
         user = DbUser.get(id=id)
+        return cls.from_db_model(user)
+    
+    @classmethod
+    @ApiError.wrap_exception(peewee.DoesNotExist, HTTPStatus.NOT_FOUND, "User does not exists")
+    def get_by_username(cls, username: str) -> "User":
+        user = DbUser.get(username=username)
         return cls.from_db_model(user)
 
     @staticmethod

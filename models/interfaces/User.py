@@ -67,6 +67,10 @@ class User:
     def get_by_id(cls, id: int) -> "User":
         raise NotImplementedError()
     
+    @classmethod
+    def get_by_username(cls, username: str) -> "User":
+        raise NotImplementedError()
+    
     def to_dict(self) -> dict:
         return {
             'id': self.id(),

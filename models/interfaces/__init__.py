@@ -7,4 +7,4 @@ from .Event import Event
 from .ChatMember import ChatMember, ChatMemberPermissions
 from .User import User
 from .ChatMessage import ChatMessage
-from .ModelError import ModelError
+from .ApiError import ApiError
