@@ -7,8 +7,8 @@ class MemberKicked(EventType):
         self._user = user
         self._chat = chat
 
-    async def data_to_dict(self) -> dict:
+    def data_to_dict(self) -> dict:
         return {
-            "user": await self._user.to_dict(),
-            "chat": await self._chat.to_dict()
+            "user": self._user.to_dict(),
+            "chat": self._chat.to_dict()
         }

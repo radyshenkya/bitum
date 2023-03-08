@@ -32,7 +32,6 @@ PATCH_USER = {
     }
 }
 
-
 RESET_PASSWORD = {
     'type': 'object',
     'properties': {
@@ -51,4 +50,86 @@ CREATE_BOT = {
     'required': [
         'username'
     ]
+}
+
+CREATE_CHAT = {
+    'type': 'object',
+    'properties': {
+        'name': {'type': 'string', 'minLength': 3, 'maxLength': 100}
+    },
+    'required': [
+        'name'
+    ]
+}
+
+PATCH_CHAT = {
+    'type': 'object',
+    'properties': {
+        'name': {'type': 'string', 'minLength': 3, 'maxLength': 100},
+        'owner_id': {'type': 'integer'}
+    }
+}
+
+ADD_MEMBER = {
+    'type': 'object',
+    'properties': {
+        'user_id': {'type': 'integer'}
+    },
+    'required': [
+        'user_id'
+    ]
+}
+
+
+PATCH_MEMBER_PERMISSIONS = {
+    'type': 'object',
+    'properties': {
+        'can_write': {'type': 'boolean'},
+        'can_add_members': {'type': 'boolean'},
+        'can_kick_members': {'type': 'boolean'}
+    }
+}
+
+SEND_MESSAGE = {
+    'type': 'object',
+    'properties': {
+        'content': {'type': 'string', 'minLength': 1, 'maxLength': 4000},
+        'files': {'type': 'array', 'minItems': 0, 'maxItems': 10, "items": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 10}
+        }
+    },
+
+    'required': [
+        'content',
+        'files'
+    ]
+}
+
+UPDATE_MESSAGE = {
+    'type': 'object',
+    'properties': {
+        'content': {'type': 'string', 'minLength': 1, 'maxLength': 4000},
+        'files': {'type': 'array', 'minItems': 0, 'maxItems': 10, "items": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 10}
+        }
+    }
+}
+
+READ_EVENTS = {
+    'type': 'object',
+    'properties': {
+        'ids': {
+            'type': 'array',
+            'minItems': 1,
+            'maxItems': 256,
+            "items": {
+                "type": "integer",
+            }
+        }
+    },
+    'required': ['ids']
 }

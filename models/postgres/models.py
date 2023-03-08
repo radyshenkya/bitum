@@ -66,7 +66,6 @@ class User(IUser):
         DbUser.update(last_login_timestamp=new_time).where(
             DbUser.id == self.id()).execute()
         self._last_login_timestamp = new_time
-        print(new_time)
 
     def get_unread_events(self) -> Iterable[IEvent]:
         events = DbEvent.filter((DbEvent.is_read == False)
@@ -204,6 +203,7 @@ class Chat(IChat):
         members = DbChatMember.filter((DbChatMember.chat_id == self.id()))
         return [ChatMember.from_db_model(el) for el in members]
 
+    @ApiError.wrap_exception(peewee.IntegrityError, HTTPStatus.CONFLICT, "User already in chat")
     def add_member(self, user: User) -> "ChatMember":
         pg_member = DbChatMember.create(user_id=user.id(), chat_id=self.id())
         member = ChatMember.from_db_model(pg_member)
@@ -228,6 +228,7 @@ class Chat(IChat):
             Event.new(user, event_payload)
 
     @classmethod
+    @ApiError.wrap_exception(peewee.DoesNotExist, HTTPStatus.NOT_FOUND, "Chat does not exists")
     def get_by_id(cls, id: int) -> "Chat":
         chat = DbChat.get(id=id)
         return cls.from_db_model(chat)
@@ -276,8 +277,9 @@ class ChatMember(IChatMember):
         chat.send_event_to_members(event_payload)
 
     @classmethod
-    def get_by_chat_and_user(cls, chat_id: int, user_id: int):
-        member = DbChatMember.get(chat_id=chat_id, user_id=user_id)
+    @ApiError.wrap_exception(peewee.DoesNotExist, HTTPStatus.NOT_FOUND, "User is not in chat")
+    def get_by_chat_and_user(cls, chat: Chat, user: User):
+        member = DbChatMember.get(chat_id=chat.id(), user_id=user.id())
         return ChatMember.from_db_model(member)
 
     @staticmethod
@@ -317,8 +319,13 @@ class ChatMessage(IChatMessage):
     def content(self) -> str:
         return self._content
 
-    def file_names(self) -> Iterable[str]:
+    def files(self) -> Iterable[str]:
         return self._files
+
+    def set_files(self, value: List[str]):
+        DbChatMessage.update(files=ChatMessage.FILES_SPLITTER.join(value)).where(
+            DbChatMessage.id == self.id()).execute()
+        self._files = value
 
     def set_content(self, value: str):
         DbChatMessage.update(content=value).where(
@@ -327,6 +334,9 @@ class ChatMessage(IChatMessage):
 
     def timestamp(self) -> float:
         return self._created_timestamp
+
+    def delete(self):
+        DbChatMessage.delete().where(DbChatMessage.id == self.id()).execute()
 
     @staticmethod
     def from_db_model(db_model: DbChatMessage):
@@ -340,6 +350,7 @@ class ChatMessage(IChatMessage):
         )
 
     @classmethod
+    @ApiError.wrap_exception(peewee.DoesNotExist, HTTPStatus.NOT_FOUND, "Message does not exist")
     def get_by_id(cls, id: int) -> "ChatMessage":
         message = DbChatMessage.get(id=id)
         return cls.from_db_model(message)
@@ -382,6 +393,12 @@ class Event(IEvent):
 
     def mark_as_read(self):
         DbEvent.update(is_read=True).where(DbEvent.id == self.id()).execute()
+
+    @classmethod
+    @ApiError.wrap_exception(peewee.DoesNotExist, HTTPStatus.NOT_FOUND, "Event does not exist")
+    def get_by_id(cls, id: int) -> "Event":
+        event = DbEvent.get(id=id)
+        return cls.from_db_model(event)
 
     @staticmethod
     def from_db_model(db_model: DbEvent):

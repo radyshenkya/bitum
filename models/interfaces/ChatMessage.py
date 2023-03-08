@@ -1,4 +1,4 @@
-from typing import Iterable
+from typing import Iterable, List
 from .Chat import Chat
 from .User import User
 
@@ -20,7 +20,10 @@ class ChatMessage:
     def content(self) -> str:
         raise NotImplementedError()
 
-    def file_names(self) -> Iterable[str]:
+    def files(self) -> Iterable[str]:
+        raise NotImplementedError()
+
+    def set_files(self, value: List[str]):
         raise NotImplementedError()
 
     def set_content(self, value: str):
@@ -42,5 +45,5 @@ class ChatMessage:
             'sender': self.sender().to_dict(),
             'chat': self.chat().to_dict(),
             'content': self.content(),
-            'files': [el for el in self.file_names()]
+            'files': [el for el in self.files()]
         }

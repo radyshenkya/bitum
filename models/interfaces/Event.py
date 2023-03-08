@@ -23,3 +23,14 @@ class Event:
 
     def mark_as_read(self):
         raise NotImplementedError()
+
+    @classmethod
+    def get_by_id(cls, id: int) -> "Event":
+        raise NotImplementedError()
+
+    def to_dict(self) -> dict:
+        return {
+            'id': self.id(),
+            'user': self.receiver().to_dict(),
+            'payload': self.payload()
+        }

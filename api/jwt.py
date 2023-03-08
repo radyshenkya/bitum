@@ -48,7 +48,7 @@ def get_user_from_jwt(function):
 
             return function(*args, **kwargs, user=user)
 
-        except AssertionError as e:
+        except (AssertionError, jwt.exceptions.DecodeError) as e:
             raise ApiError(HTTPStatus.UNAUTHORIZED, 'Unauthorized', e)
 
         except Exception as another_e:
