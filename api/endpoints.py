@@ -8,24 +8,24 @@ from .util import ok, only_user
 from .error_handlers import bind as bind_errors
 from config import API_FILES_SAVE_PATH, MAX_FILE_SIZE_IN_BYTES
 
-from flask_cors import cross_origin
+from flask_cors import CORS
 from flask_expects_json import expects_json
 from flask import Blueprint, request, send_from_directory
 
 api = Blueprint('api', __name__)
+cors = CORS(api)
+
 bind_errors(api)
 
 
 # /user
 @api.route('/user', methods=['GET'], strict_slashes=False)
-@cross_origin()
 @get_user_from_jwt
 def get_my_user(user: User):
     return ok(user.to_dict())
 
 
 @api.route('/user', methods=['POST'], strict_slashes=False)
-@cross_origin()
 @expects_json(validation_schemas.CREATE_USER)
 def new_user():
     json_request = request.json
@@ -36,28 +36,24 @@ def new_user():
 
 
 @api.route('/user/<int:user_id>', methods=['GET'], strict_slashes=False)
-@cross_origin()
 def get_user_by_id(user_id: int):
     user = User.get_by_id(user_id)
     return ok(user.to_dict())
 
 
 @api.route('/user/<string:username>', methods=['GET'], strict_slashes=False)
-@cross_origin()
 def get_user_by_username(username: str):
     user = User.get_by_username(username)
     return ok(user.to_dict())
 
 
 @api.route('/user/request_reset_password/<string:username>', methods=['POST'], strict_slashes=False)
-@cross_origin()
 @only_user
 def request_reset_password(username: str):
     raise NotImplementedError()
 
 
 @api.route('/user/reset_password/<string:code>', methods=['POST'], strict_slashes=False)
-@cross_origin()
 @expects_json(validation_schemas.RESET_PASSWORD)
 @only_user
 def reset_password(code: str):
@@ -65,7 +61,6 @@ def reset_password(code: str):
 
 
 @api.route('/user/token', methods=['POST'], strict_slashes=False)
-@cross_origin()
 @expects_json(validation_schemas.CREATE_USER_TOKEN)
 @ApiError.wrap_exception(AssertionError, HTTPStatus.UNAUTHORIZED, 'Wrong password')
 def create_user_token():
@@ -84,7 +79,6 @@ def create_user_token():
 
 
 @api.route('/user', methods=['PATCH'], strict_slashes=False)
-@cross_origin()
 @expects_json(validation_schemas.PATCH_USER)
 @get_user_from_jwt
 @only_user
@@ -99,7 +93,6 @@ def patch_user(user: User):
 
 
 @api.route('/user/search')
-@cross_origin()
 def search_users():
     username = request.args.get('username', '')
     offset = int(request.args.get('offset', 0))
@@ -111,7 +104,6 @@ def search_users():
 
 # /bot
 @api.route('/bot', methods=['POST'], strict_slashes=False)
-@cross_origin()
 @expects_json(validation_schemas.CREATE_BOT)
 @get_user_from_jwt
 @only_user
@@ -120,7 +112,6 @@ def create_bot(user: User):
 
 
 @api.route('/bot/<int:bot_id>', methods=['DELETE'], strict_slashes=False)
-@cross_origin()
 @get_user_from_jwt
 @only_user
 @ApiError.wrap_exception(AssertionError, HTTPStatus.NOT_FOUND, 'This user does not own this bot')
@@ -134,7 +125,6 @@ def delete_bot(bot_id: int, user: User):
 
 
 @api.route('/bots', methods=['GET'], strict_slashes=False)
-@cross_origin()
 @get_user_from_jwt
 @only_user
 def get_bots(user: User):
@@ -142,7 +132,6 @@ def get_bots(user: User):
 
 
 @api.route('/bot/<int:bot_id>/token', methods=['POST'], strict_slashes=False)
-@cross_origin()
 @get_user_from_jwt
 @only_user
 @ApiError.wrap_exception(AssertionError, HTTPStatus.NOT_FOUND, 'This user does not own this bot')
@@ -155,7 +144,6 @@ def get_bot_token(bot_id: int, user: User):
 
 
 @api.route('/bot/search', methods=['GET'], strict_slashes=False)
-@cross_origin()
 def search_bots():
     username = request.args.get('username', '')
     offset = int(request.args.get('offset', 0))
@@ -167,7 +155,6 @@ def search_bots():
 
 # /files
 @api.route('/files', methods=['POST'], strict_slashes=False)
-@cross_origin()
 @get_user_from_jwt
 @ApiError.wrap_exception(AssertionError, HTTPStatus.BAD_REQUEST, f'Files bigger than {MAX_FILE_SIZE_IN_BYTES} bytes is not supported')
 def upload_file(user: User):
@@ -188,14 +175,12 @@ def upload_file(user: User):
 
 
 @api.route('/files/<path:path>', methods=['GET'], strict_slashes=False)
-@cross_origin()
 def server_files(path):
     return send_from_directory(API_FILES_SAVE_PATH, path)
 
 
 # /chat
 @api.route('/chat', methods=['POST'], strict_slashes=False)
-@cross_origin()
 @get_user_from_jwt
 @expects_json(validation_schemas.CREATE_CHAT)
 def new_chat(user: User):
@@ -205,7 +190,6 @@ def new_chat(user: User):
 
 
 @api.route('/chat/<int:chat_id>', methods=['PATCH'], strict_slashes=False)
-@cross_origin()
 @get_user_from_jwt
 @expects_json(validation_schemas.PATCH_CHAT)
 def patch_chat(chat_id: int, user: User):
@@ -223,7 +207,6 @@ def patch_chat(chat_id: int, user: User):
 
 
 @api.route('/chat/<int:chat_id>', methods=['DELETE'], strict_slashes=False)
-@cross_origin()
 @get_user_from_jwt
 @ApiError.wrap_exception(AssertionError, HTTPStatus.FORBIDDEN, f'You can not delete this chat')
 def delete_chat(chat_id: int, user: User):
@@ -235,7 +218,6 @@ def delete_chat(chat_id: int, user: User):
 
 
 @api.route('/chats', methods=['GET'], strict_slashes=False)
-@cross_origin()
 @get_user_from_jwt
 def get_chats(user: User):
     chats = user.chats()
@@ -244,7 +226,6 @@ def get_chats(user: User):
 
 # /chat/ /member
 @api.route('/chat/<int:chat_id>/member', methods=["POST"], strict_slashes=False)
-@cross_origin()
 @get_user_from_jwt
 @expects_json(validation_schemas.ADD_MEMBER)
 @ApiError.wrap_exception(AssertionError, HTTPStatus.FORBIDDEN, f'You can not add members to this chat')
@@ -261,7 +242,6 @@ def add_chat_member(chat_id: int, user: User):
 
 
 @api.route('/chat/<int:chat_id>/member/<int:user_id>', methods=["DELETE"], strict_slashes=False)
-@cross_origin()
 @get_user_from_jwt
 @ApiError.wrap_exception(AssertionError, HTTPStatus.FORBIDDEN, f'You can not kick members in this chat')
 def delete_member(chat_id: int, user_id: int, user: User):
@@ -279,7 +259,6 @@ def delete_member(chat_id: int, user_id: int, user: User):
 
 
 @api.route('/chat/<int:chat_id>/member/<int:user_id>', methods=["GET"], strict_slashes=False)
-@cross_origin()
 @get_user_from_jwt
 def get_chat_member_info(chat_id: int, user_id: int, user: User):
     chat = Chat.get_by_id(chat_id)
@@ -293,7 +272,6 @@ def get_chat_member_info(chat_id: int, user_id: int, user: User):
 
 
 @api.route('/chat/<int:chat_id>/member/<int:user_id>', methods=["PATCH"], strict_slashes=False)
-@cross_origin()
 @get_user_from_jwt
 @expects_json(validation_schemas.PATCH_MEMBER_PERMISSIONS)
 @ApiError.wrap_exception(AssertionError, HTTPStatus.FORBIDDEN, f'You can not edit members in this chat')
@@ -319,7 +297,6 @@ def patch_member_permissions(chat_id: int, user_id: int, user: User):
 
 # /chat/ /message
 @api.route('/chat/<int:chat_id>/message', methods=["POST"], strict_slashes=False)
-@cross_origin()
 @get_user_from_jwt
 @expects_json(validation_schemas.SEND_MESSAGE)
 @ApiError.wrap_exception(AssertionError, HTTPStatus.FORBIDDEN, f'You can not send messages in this chat')
@@ -338,7 +315,6 @@ def send_message(chat_id: int, user: User):
 
 
 @api.route('/chat/<int:chat_id>/message/<int:message_id>', methods=["PATCH"], strict_slashes=False)
-@cross_origin()
 @get_user_from_jwt
 @expects_json(validation_schemas.UPDATE_MESSAGE)
 @ApiError.wrap_exception(AssertionError, HTTPStatus.FORBIDDEN, f'You can not edit this message')
@@ -354,7 +330,6 @@ def patch_message(chat_id: int, message_id: int, user: User):
 
 
 @api.route('/chat/<int:chat_id>/message/<int:message_id>', methods=["DELETE"], strict_slashes=False)
-@cross_origin()
 @get_user_from_jwt
 @expects_json(validation_schemas.UPDATE_MESSAGE)
 @ApiError.wrap_exception(AssertionError, HTTPStatus.FORBIDDEN, f'You can not delete this message')
@@ -369,7 +344,6 @@ def delete_message(chat_id: int, message_id: int, user: User):
 
 
 @api.route('/chat/<int:chat_id>/messages', methods=["GET"], strict_slashes=False)
-@cross_origin()
 @get_user_from_jwt
 def get_messages(chat_id: int, user: User):
     chat = Chat.get_by_id(chat_id)
@@ -385,14 +359,12 @@ def get_messages(chat_id: int, user: User):
 
 # /event
 @api.route('/events', methods=["GET"], strict_slashes=False)
-@cross_origin()
 @get_user_from_jwt
 def get_events(user: User):
     return ok([el.to_dict() for el in user.get_unread_events()])
 
 
 @api.route('/events', methods=['DELETE'], strict_slashes=False)
-@cross_origin()
 @get_user_from_jwt
 @expects_json(validation_schemas.READ_EVENTS)
 def read_events(user: User):
