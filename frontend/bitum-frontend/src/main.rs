@@ -1,6 +1,7 @@
 mod api;
 mod components;
 mod routes;
+mod texts;
 
 use std::rc::Rc;
 
@@ -9,7 +10,7 @@ use routes::Route;
 use yew::prelude::*;
 use yew_router::{BrowserRouter, Switch};
 
-use crate::routes::switch;
+use crate::{components::Footer, routes::switch};
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct LoggedUserInfo {
