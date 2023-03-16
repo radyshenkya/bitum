@@ -13,7 +13,7 @@ from flask_expects_json import expects_json
 from flask import Blueprint, request, send_from_directory
 
 api = Blueprint('api', __name__)
-cors = CORS(api)
+cors = CORS(api, )
 
 bind_errors(api)
 

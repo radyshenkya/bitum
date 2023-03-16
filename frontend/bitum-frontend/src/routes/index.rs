@@ -1,7 +1,7 @@
 use yew::prelude::*;
 use yew_router::prelude::Link;
 
-use crate::{routes::Route, components::Footer};
+use crate::{components::Footer, routes::Route};
 
 #[derive(PartialEq, Properties)]
 pub struct IndexRouteProps {}
@@ -15,7 +15,7 @@ pub fn IndexRoute(props: &IndexRouteProps) -> Html {
             <div class="index-logo">
                 <div class="row">
                     <div class="col">
-                        <img src="static/img/bitum-icon.svg" width=130px />
+                        <img src="static_files/img/bitum-icon.svg" width=130px />
                     </div>
                 </div>
                 <div class="row">

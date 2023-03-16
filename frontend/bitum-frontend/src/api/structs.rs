@@ -58,3 +58,21 @@ pub struct Response<T> {
     pub error: Option<ApiError>,
     pub data: Option<T>,
 }
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct NewUserRequest {
+    pub username: String,
+    pub password: String,
+    pub email: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct GetTokenRequest {
+    pub username: String,
+    pub password: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct GetTokenResponseData {
+    pub token: String,
+}
