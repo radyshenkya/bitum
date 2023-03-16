@@ -1,12 +1,16 @@
+pub mod chats;
 pub mod index;
 pub mod login;
 pub mod register;
 
+use chats::ChatsRoute;
 use index::IndexRoute;
 use login::LoginRoute;
 use register::RegisterRoute;
 use yew::{html, Html};
 use yew_router::prelude::*;
+
+use crate::components::LoginOrRedirect;
 
 #[derive(Clone, Routable, PartialEq)]
 pub enum Route {
@@ -28,7 +32,11 @@ pub enum Route {
 pub fn switch(routes: Route) -> Html {
     match routes {
         Route::Index => html! {<IndexRoute/>},
-        Route::Chats => html! {<h1>{"Chats page!"}</h1>},
+        Route::Chats => html! {
+            <LoginOrRedirect>
+                <ChatsRoute/>
+            </LoginOrRedirect>
+        },
         Route::Chat { id } => html! {<h1>{"Chat/"}{id}</h1>},
         Route::Login => html! {<LoginRoute />},
         Route::Register => html! {<RegisterRoute />},

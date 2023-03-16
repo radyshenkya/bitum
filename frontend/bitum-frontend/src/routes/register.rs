@@ -1,4 +1,3 @@
-use log::info;
 use wasm_bindgen_futures::spawn_local;
 use web_sys::HtmlInputElement;
 use yew::prelude::*;
@@ -27,10 +26,10 @@ pub fn RegisterRoute(props: &RegisterRouteProps) -> Html {
         let username_input_node = username_input_node.clone();
         let password_input_node = password_input_node.clone();
         let email_input_node = email_input_node.clone();
-        let navigator = navigator.clone();
         let error_message_state = error_message_state.clone();
 
         Callback::from(move |submit_event: SubmitEvent| {
+            let navigator = navigator.clone();
             let error_message_state = error_message_state.clone();
             submit_event.prevent_default();
 
@@ -72,6 +71,8 @@ pub fn RegisterRoute(props: &RegisterRouteProps) -> Html {
                             password: password.clone(),
                         })
                         .await;
+
+                        navigator.push(&Route::Chats);
                     } else {
                         match resp.error.unwrap().code {
                             409 => {
@@ -113,7 +114,7 @@ pub fn RegisterRoute(props: &RegisterRouteProps) -> Html {
 
                     <div class="col-12 d-flex p-2 justify-content-between">
                         <button class="btn btn-success btn-lg" type="submit" id="submit-button">{"Зарегистрироваться"}</button>
-                        <Link<Route> classes="btn btn-ligth btn-lg" to={Route::Login}>{"Вход"}</Link<Route>>
+                        <Link<Route> classes="btn btn-outline-secondary btn-lg" to={Route::Login}>{"Вход"}</Link<Route>>
                     </div>
                 </form>
             </div>
