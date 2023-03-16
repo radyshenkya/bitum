@@ -26,11 +26,15 @@ class DbUser(BaseModel):
     is_bot = peewee.BooleanField(default=False)
     creator = peewee.ForeignKeyField('self', null=True, on_delete='CASCADE')
     last_login_timestamp = peewee.BigIntegerField(default=0)
+    icon_file = peewee.CharField(max_length=400, null=True)
+    created_timestamp = peewee.FloatField(default=time.time)
 
 
 class DbChat(BaseModel):
     name = peewee.CharField(max_length=200)
     owner = peewee.ForeignKeyField(DbUser, backref='chats', null=True)
+    icon_file = peewee.CharField(max_length=400, null=True)
+    created_timestamp = peewee.FloatField(default=time.time)
 
 
 class DbChatMember(BaseModel):

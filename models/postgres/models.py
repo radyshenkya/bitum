@@ -12,7 +12,18 @@ UTF_8 = 'utf-8'
 
 
 class User(IUser):
-    def __init__(self, id: int, username: str, password: str | None = None, email: str | None = None, is_bot: bool = False, creator_id: int | None = None, last_login_timestamp: float = 0) -> None:
+    def __init__(
+        self,
+        id: int,
+        username: str,
+        password: str | None = None,
+        email: str | None = None,
+        is_bot: bool = False,
+        creator_id: int | None = None,
+        last_login_timestamp: float = 0,
+        icon_file: str | None = None,
+        created_timestamp: float = 0
+    ) -> None:
         self._id = id
         self._username = username
         self._password = password
@@ -20,27 +31,31 @@ class User(IUser):
         self._is_bot = is_bot
         self._creator_id = creator_id
         self._last_login_timestamp = last_login_timestamp
+        self._created_timestamp = created_timestamp
+        self._icon_file = icon_file
 
     @classmethod
     @ApiError.wrap_exception(peewee.IntegrityError, HTTPStatus.CONFLICT, "User already exists")
-    def new(cls, username: str, password: str, email: str) -> "User":
+    def new(cls, username: str, password: str, email: str, icon_file: str | None) -> "User":
         hashed_password = hashpw(
             bytes(password, UTF_8), gensalt()).decode(UTF_8)
         new_user = DbUser.create(
             username=username,
             email=email,
-            password=hashed_password
+            password=hashed_password,
+            icon_file=icon_file
         )
 
         return User.from_db_model(new_user)
 
     @classmethod
     @ApiError.wrap_exception(peewee.IntegrityError, HTTPStatus.CONFLICT, "Bot already exists")
-    def new_bot(cls, username: str, creator: "User") -> "User":
+    def new_bot(cls, username: str, creator: "User", icon_file: str | None) -> "User":
         new_user = DbUser.create(
             username=username,
             creator_id=creator.id(),
-            is_bot=True
+            is_bot=True,
+            icon_file=icon_file
         )
 
         return User.from_db_model(new_user)
@@ -57,6 +72,16 @@ class User(IUser):
     def set_email(self, value: str):
         DbUser.update(email=value).where(DbUser.id == self.id()).execute()
         self._email = value
+
+    def created_timestamp(self) -> float:
+        return int(self._created_timestamp)
+
+    def icon(self) -> Union[str, None]:
+        return self._icon_file
+
+    def set_icon(self, value: Union[str, None]):
+        DbUser.update(icon_file=value).where(DbUser.id == self.id()).execute()
+        self._icon_file = value
 
     def last_login_timestamp(self) -> float:
         return int(self._last_login_timestamp)
@@ -144,15 +169,19 @@ class User(IUser):
             email=db_model.email,
             is_bot=db_model.is_bot,
             creator_id=db_model.creator_id,
-            last_login_timestamp=db_model.last_login_timestamp
+            last_login_timestamp=db_model.last_login_timestamp,
+            created_timestamp=db_model.created_timestamp,
+            icon_file=db_model.icon_file
         )
 
 
 class Chat(IChat):
-    def __init__(self, id: int, name: str, owner_id: int) -> None:
+    def __init__(self, id: int, name: str, owner_id: int, icon_file: str | None = None, created_timestamp: float = 0) -> None:
         self._id = id
         self._name = name
         self._owner_id = owner_id
+        self._icon_file = icon_file
+        self._created_timestamp = created_timestamp
 
     def id(self) -> int:
         return self._id
@@ -161,10 +190,11 @@ class Chat(IChat):
         return self._name
 
     @classmethod
-    def new(cls, name: str, owner: User):
+    def new(cls, name: str, icon_file: str | None, owner: User):
         pg_chat = DbChat.create(
             name=name,
-            owner_id=owner.id()
+            owner_id=owner.id(),
+            icon_file=icon_file
         )
 
         chat = Chat.from_db_model(pg_chat)
@@ -194,6 +224,16 @@ class Chat(IChat):
 
     def owner(self) -> User:
         return User.get_by_id(self._owner_id)
+
+    def created_timestamp(self) -> float:
+        return self._created_timestamp
+
+    def icon(self) -> Union[str, None]:
+        return self._icon_file
+
+    def set_icon(self, value: Union[str, None]):
+        DbChat.update(icon_file=value).where(DbChat.id == self.id()).execute()
+        self._icon_file = value
 
     def set_owner(self, user: User):
         DbChat.update(owner_id=user.id()).where(
@@ -238,7 +278,9 @@ class Chat(IChat):
         return Chat(
             db_model.id,
             db_model.name,
-            db_model.owner_id
+            db_model.owner_id,
+            db_model.icon_file,
+            db_model.created_timestamp
         )
 
 
@@ -332,7 +374,7 @@ class ChatMessage(IChatMessage):
             DbChatMessage.id == self.id()).execute()
         self._content = value
 
-    def timestamp(self) -> float:
+    def created_timestamp(self) -> float:
         return self._created_timestamp
 
     def delete(self):

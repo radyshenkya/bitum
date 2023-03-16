@@ -26,11 +26,13 @@ def get_my_user(user: User):
 
 
 @api.route('/user', methods=['POST'], strict_slashes=False)
-@expects_json(validation_schemas.CREATE_USER)
+@expects_json(validation_schemas.CREATE_USER, fill_defaults=True)
 def new_user():
     json_request = request.json
     user = User.new(json_request['username'],
-                    json_request['password'], json_request['email'])
+                    json_request['password'],
+                    json_request['email'],
+                    json_request['icon_file'])
 
     return ok(user.to_dict())
 
@@ -85,6 +87,7 @@ def create_user_token():
 def patch_user(user: User):
     json_request = request.json
     user.set_email(json_request.get('email', user.email()))
+    user.set_icon(json_request.get('icon_file', user.icon()))
 
     if 'password' in json_request.keys():
         user.set_password(json_request['password'])
@@ -182,10 +185,10 @@ def server_files(path):
 # /chat
 @api.route('/chat', methods=['POST'], strict_slashes=False)
 @get_user_from_jwt
-@expects_json(validation_schemas.CREATE_CHAT)
+@expects_json(validation_schemas.CREATE_CHAT, fill_defaults=True)
 def new_chat(user: User):
     json_request = request.json
-    new_chat = Chat.new(json_request['name'], user)
+    new_chat = Chat.new(json_request['name'], json_request['icon_file'], user)
     return ok(new_chat.to_dict())
 
 
@@ -202,6 +205,7 @@ def patch_chat(chat_id: int, user: User):
 
     chat.set_name(json_request.get('name', chat.name()))
     chat.set_owner(new_owner)
+    chat.set_icon(json_request.get('icon_file', chat.icon()))
 
     return ok(chat.to_dict())
 
