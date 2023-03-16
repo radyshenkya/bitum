@@ -9,7 +9,7 @@ use crate::{
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct LoggedUserInfo {
-    user: Option<User>,
+    pub user: Option<User>,
 }
 
 #[derive(PartialEq, Properties)]

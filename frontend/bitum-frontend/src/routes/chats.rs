@@ -1,6 +1,6 @@
 use yew::prelude::*;
 
-use crate::components::Header;
+use crate::components::{Header, Footer};
 
 #[derive(PartialEq, Properties)]
 pub struct ChatsRouteProps {}
@@ -12,6 +12,7 @@ pub fn ChatsRoute(props: &ChatsRouteProps) -> Html {
     html! {
         <>
             <Header/>
+            <Footer/>
         </>
     }
 }

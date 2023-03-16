@@ -1,4 +1,3 @@
-use log::info;
 use yew::prelude::*;
 
 use crate::components::BsToast;
