@@ -1,8 +1,7 @@
 use yew::prelude::*;
 
 use crate::{
-    components::{Toast, ToastMessage},
-    TOAST_CONTAINER_ID,
+    components::{ToastMessage},
 };
 
 #[derive(PartialEq, Properties)]

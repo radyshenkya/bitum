@@ -1,12 +1,11 @@
 use gloo_timers::future::TimeoutFuture;
 use wasm_bindgen_futures::spawn_local;
-use web_sys::HtmlInputElement;
 use yew::prelude::*;
 use yew_router::prelude::Link;
 
 use crate::{
-    api::{get_chats, new_chat, Chat, NewChatRequest},
-    components::{ErrorMessage, Footer, Header, Modal},
+    api::get_chats,
+    components::{ErrorMessage, Footer, Header, NewChatModalButton},
     constants::API_REFRESH_MILLIS,
     routes::Route,
 };
@@ -19,62 +18,7 @@ pub fn ChatsRoute(props: &ChatsRouteProps) -> Html {
     let ChatsRouteProps {} = props;
 
     let error_message_state = use_state(|| Option::<String>::None);
-
-    let new_chat_dialog_visible = use_state(|| false);
-    let new_chat_input_node = use_node_ref();
-
     let chats_state = use_state(|| Vec::new());
-
-    let on_new_chat_click = {
-        let new_chat_dialog_visible = new_chat_dialog_visible.clone();
-
-        Callback::from(move |_: MouseEvent| {
-            new_chat_dialog_visible.set(true);
-        })
-    };
-
-    let on_dialog_close = {
-        let new_chat_dialog_visible = new_chat_dialog_visible.clone();
-
-        Callback::from(move |_: ()| {
-            new_chat_dialog_visible.set(false);
-        })
-    };
-
-    let on_ok = {
-        let error_message_state = error_message_state.clone();
-        let new_chat_input_node = new_chat_input_node.clone();
-
-        Callback::from(move |_: ()| {
-            let error_message_state = error_message_state.clone();
-            let new_chat_input_node = new_chat_input_node.clone();
-
-            if let Some(input_element) = new_chat_input_node.cast::<HtmlInputElement>() {
-                let chat_name = input_element.value();
-
-                if chat_name.is_empty() {
-                    error_message_state.set(Some("Чат не был создан".to_string()));
-                    return;
-                }
-
-                spawn_local(async move {
-                    let response = new_chat(NewChatRequest {
-                        name: chat_name.clone(),
-                        icon_file: None,
-                    })
-                    .await;
-
-                    if let Ok(response) = response {
-                        if !response.ok {
-                            error_message_state.set(Some("Что-то пошло не так".to_string()));
-                        }
-                    } else {
-                        error_message_state.set(Some("Сервер не отвечает".to_string()));
-                    }
-                });
-            }
-        })
-    };
 
     {
         let chats_state = chats_state.clone();
@@ -100,22 +44,13 @@ pub fn ChatsRoute(props: &ChatsRouteProps) -> Html {
     html! {
         <>
             <Header/>
-            <Modal modal_id={"new-chat-modal".to_string()} is_visible={*new_chat_dialog_visible} on_ok={on_ok} on_cancel={Callback::from(|_| {})} on_close={on_dialog_close}>
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5">{"Создать чат"}</h1>
-                </div>
-                <div class="modal-body">
-                    <div class="input-group">
-                        <span class="input-group-text">{"Имя чата"}</span>
-                        <input ref={new_chat_input_node} type="text" class="form-control" aria-label="chat_name" required=true />
-                    </div>
-                </div>
-            </Modal>
             <h1 class="fw-medium fs-1">
                 {"Чаты "}
-                <button onclick={on_new_chat_click} class="btn btn-light btn-lg">
-                    <i class="bi bi-plus-square-fill fs-4"></i>
-                </button>
+                <NewChatModalButton redirect=true chat_name={"".to_string()}>
+                    //<button class="btn btn-light btn-lg">
+                            <i class="bi bi-plus-square-fill fs-1 p-3"></i>
+                    //</button>
+                </NewChatModalButton>
             </h1>
             <div class="row">
                 {
