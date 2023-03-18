@@ -5,7 +5,9 @@ use routes::Route;
 use yew::prelude::*;
 use yew_router::{BrowserRouter, Switch};
 
-use crate::routes::switch;
+use crate::{routes::switch, components::ToastContainer};
+
+pub const TOAST_CONTAINER_ID: &str = "toasts-container";
 
 #[function_component]
 fn App() -> Html {
@@ -14,6 +16,7 @@ fn App() -> Html {
             <BrowserRouter>
                 <Switch<Route> render={switch}/>
             </BrowserRouter>
+            <ToastContainer id={TOAST_CONTAINER_ID.to_string()}/>
         </div>
     }
 }

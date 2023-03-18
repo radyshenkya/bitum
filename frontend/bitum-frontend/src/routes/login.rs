@@ -100,7 +100,16 @@ pub fn LoginRoute(props: &LoginRouteProps) -> Html {
         </div>
         <Footer />
         if let Some(err) = (*error_message_state).clone() {
-            <ErrorMessage value={err}/>
+            <ErrorMessage
+                on_close={
+                    let error_message_state = error_message_state.clone();
+
+                    Callback::from(move |_| {
+                        error_message_state.set(None);
+                    })
+                }
+                value={err}
+            />
         }
         </>
     }
