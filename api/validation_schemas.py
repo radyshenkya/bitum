@@ -1,7 +1,7 @@
 CREATE_USER = {
     'type': 'object',
     'properties': {
-        'username': {'type': 'string', 'minLength': 3, 'maxLength': 100},
+        'username': {'type': 'string', 'minLength': 1, 'maxLength': 100},
         'password': {'type': 'string', 'minLength': 4, 'maxLength': 100},
         'email': {'type': 'string', 'format': 'email', "minLength": 6, "maxLength": 127, "pattern": "^\\S+@\\S+\\.\\S+$"},
         'icon_file': {'type': ["string", "null"], 'minLength': 4, 'maxLength': 400, 'default': None}
@@ -16,7 +16,7 @@ CREATE_USER = {
 CREATE_USER_TOKEN = {
     'type': 'object',
     'properties': {
-        'username': {'type': 'string', 'minLength': 3, 'maxLength': 100},
+        'username': {'type': 'string', 'minLength': 1, 'maxLength': 100},
         'password': {'type': 'string', 'minLength': 4, 'maxLength': 100}
     },
     'required': [
@@ -28,7 +28,7 @@ CREATE_USER_TOKEN = {
 PATCH_USER = {
     'type': 'object',
     'properties': {
-        'username': {'type': 'string', 'minLength': 3, 'maxLength': 100},
+        'username': {'type': 'string', 'minLength': 1, 'maxLength': 100},
         'email': {'type': 'string', 'format': 'email', "minLength": 6, "maxLength": 127, "pattern": "^\\S+@\\S+\\.\\S+$"},
         'icon_file': {'type': ["string", "null"], 'minLength': 4, 'maxLength': 400, 'default': None}
     }
@@ -47,7 +47,7 @@ RESET_PASSWORD = {
 CREATE_BOT = {
     'type': 'object',
     'properties': {
-        'username': {'type': 'string', 'minLength': 3, 'maxLength': 100},
+        'username': {'type': 'string', 'minLength': 1, 'maxLength': 100},
         'icon_file': {'type': 'string', 'minLength': 4, 'maxLength': 400, 'default': None}
     },
     'required': [
@@ -58,8 +58,8 @@ CREATE_BOT = {
 CREATE_CHAT = {
     'type': 'object',
     'properties': {
-        'name': {'type': 'string', 'minLength': 3, 'maxLength': 100},
-        'icon_file': {'type': 'string', 'minLength': 4, 'maxLength': 400, 'default': None}
+        'name': {'type': 'string', 'minLength': 1, 'maxLength': 100},
+        'icon_file': {'type': ["string", "null"], 'minLength': 4, 'maxLength': 400, 'default': None}
     },
     'required': [
         'name'
@@ -69,8 +69,9 @@ CREATE_CHAT = {
 PATCH_CHAT = {
     'type': 'object',
     'properties': {
-        'name': {'type': 'string', 'minLength': 3, 'maxLength': 100},
+        'name': {'type': 'string', 'minLength': 1, 'maxLength': 100},
         'owner_id': {'type': 'integer'},
+        'icon_file': {'type': ["string", "null"], 'minLength': 4, 'maxLength': 400, 'default': None}
     }
 }
 
