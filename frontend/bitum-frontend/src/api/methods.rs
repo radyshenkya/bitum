@@ -73,3 +73,24 @@ pub async fn get_user_token(
 
     Ok(response)
 }
+
+pub async fn new_chat(new_chat_requests: NewChatRequest) -> Result<Response<Chat>, ApiCallError> {
+    let response: Response<Chat> = Request::post(&endpoint("/chat"))
+        .credentials(web_sys::RequestCredentials::Include)
+        .json(&new_chat_requests)
+        .map_err(|e| ApiCallError {
+            message: e.to_string(),
+        })?
+        .send()
+        .await
+        .map_err(|e| ApiCallError {
+            message: e.to_string(),
+        })?
+        .json()
+        .await
+        .map_err(|e| ApiCallError {
+            message: e.to_string(),
+        })?;
+
+    Ok(response)
+}

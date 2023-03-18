@@ -30,20 +30,21 @@ pub fn Header(props: &HeaderProps) -> Html {
                             {"//"}
                         </div>
                         <div class="p-3 fs-5">
-                            <a href="#" target="blank" class="text-decoration-none text-light-emphasis">{"Боты"}</a>
+                            <a href="#" class="text-decoration-none text-light-emphasis">{"Боты"}</a>
                         </div>
                         <div class="p-3 fs-4">
                             {"//"}
                         </div>
                         <div class="p-3 fs-5">
-                            <a href="#" target="blank" class="text-decoration-none text-light-emphasis">{"Мои боты"}</a>
+                            <a href="#" class="text-decoration-none text-light-emphasis">{"Мои боты"}</a>
                         </div>
                     </nav>
 
                     <div class="col-md-3 col-sm-12 d-flex text-center justify-content-center align-items-center">
-                        <div class="fs-3 fw-medium">
+                        <div class="fs-3 fw-medium p-5">
                             {user.username}
                         </div>
+                        <img src={format!("/api/files/{}", user.icon.unwrap_or("null.png".to_string()))} class="rounded" width=70px alt="Icon" />
                     </div>
                 }
             }

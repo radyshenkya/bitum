@@ -5,6 +5,8 @@ pub struct User {
     pub id: i32,
     pub username: String,
     pub is_bot: bool,
+    pub icon: Option<String>,
+    pub created_at: f64,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -12,6 +14,8 @@ pub struct Chat {
     pub id: i32,
     pub name: String,
     pub owner: User,
+    pub icon: Option<String>,
+    pub created_at: f64,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -75,4 +79,10 @@ pub struct GetTokenRequest {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct GetTokenResponseData {
     pub token: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct NewChatRequest {
+    pub name: String,
+    pub icon_file: Option<String>,
 }

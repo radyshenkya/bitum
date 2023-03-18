@@ -93,7 +93,7 @@ pub fn LoginRoute(props: &LoginRouteProps) -> Html {
 
                     <div class="col-12 d-flex p-2 justify-content-between">
                         <button class="btn btn-success btn-lg" type="submit" id="submit-button">{"Войти"}</button>
-                        <Link<Route> classes="btn btn-outline-secondary btn-lg" to={Route::Register}>{"Регистрация"}</Link<Route>>
+                        <Link<Route> classes="btn btn-light btn-lg" to={Route::Register}>{"Регистрация"}</Link<Route>>
                     </div>
                 </form>
             </div>

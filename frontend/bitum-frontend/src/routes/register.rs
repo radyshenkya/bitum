@@ -114,7 +114,7 @@ pub fn RegisterRoute(props: &RegisterRouteProps) -> Html {
 
                     <div class="col-12 d-flex p-2 justify-content-between">
                         <button class="btn btn-success btn-lg" type="submit" id="submit-button">{"Зарегистрироваться"}</button>
-                        <Link<Route> classes="btn btn-outline-secondary btn-lg" to={Route::Login}>{"Вход"}</Link<Route>>
+                        <Link<Route> classes="btn btn-light btn-lg" to={Route::Login}>{"Вход"}</Link<Route>>
                     </div>
                 </form>
             </div>
