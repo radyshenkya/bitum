@@ -163,7 +163,7 @@ def search_bots():
 def upload_file(user: User):
     files = []
 
-    for name, file in request.files.items()[:10]:
+    for name, file in request.files.items():
         content = file.stream.read()
         assert len(content) <= MAX_FILE_SIZE_IN_BYTES
         file_name = f'{sha1(content).hexdigest()}.{file.filename.split(".")[-1]}'
@@ -177,24 +177,24 @@ def upload_file(user: User):
     return ok(files)
 
 
-@api.route('/files/<path:path>', methods=['GET'], strict_slashes=False)
+@ api.route('/files/<path:path>', methods=['GET'], strict_slashes=False)
 def server_files(path):
     return send_from_directory(API_FILES_SAVE_PATH, path)
 
 
 # /chat
-@api.route('/chat', methods=['POST'], strict_slashes=False)
-@get_user_from_jwt
-@expects_json(validation_schemas.CREATE_CHAT, fill_defaults=True)
+@ api.route('/chat', methods=['POST'], strict_slashes=False)
+@ get_user_from_jwt
+@ expects_json(validation_schemas.CREATE_CHAT, fill_defaults=True)
 def new_chat(user: User):
     json_request = request.json
     new_chat = Chat.new(json_request['name'], json_request['icon_file'], user)
     return ok(new_chat.to_dict())
 
 
-@api.route('/chat/<int:chat_id>', methods=['PATCH'], strict_slashes=False)
-@get_user_from_jwt
-@expects_json(validation_schemas.PATCH_CHAT)
+@ api.route('/chat/<int:chat_id>', methods=['PATCH'], strict_slashes=False)
+@ get_user_from_jwt
+@ expects_json(validation_schemas.PATCH_CHAT)
 def patch_chat(chat_id: int, user: User):
     json_request = request.json
     chat = Chat.get_by_id(chat_id)
@@ -210,9 +210,9 @@ def patch_chat(chat_id: int, user: User):
     return ok(chat.to_dict())
 
 
-@api.route('/chat/<int:chat_id>', methods=['DELETE'], strict_slashes=False)
-@get_user_from_jwt
-@ApiError.wrap_exception(AssertionError, HTTPStatus.FORBIDDEN, f'You can not delete this chat')
+@ api.route('/chat/<int:chat_id>', methods=['DELETE'], strict_slashes=False)
+@ get_user_from_jwt
+@ ApiError.wrap_exception(AssertionError, HTTPStatus.FORBIDDEN, f'You can not delete this chat')
 def delete_chat(chat_id: int, user: User):
     chat = Chat.get_by_id(chat_id)
     assert chat.owner().id() == user.id()
@@ -221,18 +221,18 @@ def delete_chat(chat_id: int, user: User):
     return ok()
 
 
-@api.route('/chats', methods=['GET'], strict_slashes=False)
-@get_user_from_jwt
+@ api.route('/chats', methods=['GET'], strict_slashes=False)
+@ get_user_from_jwt
 def get_chats(user: User):
     chats = user.chats()
     return ok([el.to_dict() for el in chats])
 
 
 # /chat/ /member
-@api.route('/chat/<int:chat_id>/member', methods=["POST"], strict_slashes=False)
-@get_user_from_jwt
-@expects_json(validation_schemas.ADD_MEMBER)
-@ApiError.wrap_exception(AssertionError, HTTPStatus.FORBIDDEN, f'You can not add members to this chat')
+@ api.route('/chat/<int:chat_id>/member', methods=["POST"], strict_slashes=False)
+@ get_user_from_jwt
+@ expects_json(validation_schemas.ADD_MEMBER)
+@ ApiError.wrap_exception(AssertionError, HTTPStatus.FORBIDDEN, f'You can not add members to this chat')
 def add_chat_member(chat_id: int, user: User):
     chat = Chat.get_by_id(chat_id)
     user_member = ChatMember.get_by_chat_and_user(chat, user)
@@ -245,9 +245,9 @@ def add_chat_member(chat_id: int, user: User):
     return ok(chat_member.to_dict())
 
 
-@api.route('/chat/<int:chat_id>/member/<int:user_id>', methods=["DELETE"], strict_slashes=False)
-@get_user_from_jwt
-@ApiError.wrap_exception(AssertionError, HTTPStatus.FORBIDDEN, f'You can not kick members in this chat')
+@ api.route('/chat/<int:chat_id>/member/<int:user_id>', methods=["DELETE"], strict_slashes=False)
+@ get_user_from_jwt
+@ ApiError.wrap_exception(AssertionError, HTTPStatus.FORBIDDEN, f'You can not kick members in this chat')
 def delete_member(chat_id: int, user_id: int, user: User):
     chat = Chat.get_by_id(chat_id)
 
@@ -262,8 +262,8 @@ def delete_member(chat_id: int, user_id: int, user: User):
     return ok()
 
 
-@api.route('/chat/<int:chat_id>/member/<int:user_id>', methods=["GET"], strict_slashes=False)
-@get_user_from_jwt
+@ api.route('/chat/<int:chat_id>/member/<int:user_id>', methods=["GET"], strict_slashes=False)
+@ get_user_from_jwt
 def get_chat_member_info(chat_id: int, user_id: int, user: User):
     chat = Chat.get_by_id(chat_id)
 
@@ -275,10 +275,10 @@ def get_chat_member_info(chat_id: int, user_id: int, user: User):
     return ok(chat_member.to_dict())
 
 
-@api.route('/chat/<int:chat_id>/member/<int:user_id>', methods=["PATCH"], strict_slashes=False)
-@get_user_from_jwt
-@expects_json(validation_schemas.PATCH_MEMBER_PERMISSIONS)
-@ApiError.wrap_exception(AssertionError, HTTPStatus.FORBIDDEN, f'You can not edit members in this chat')
+@ api.route('/chat/<int:chat_id>/member/<int:user_id>', methods=["PATCH"], strict_slashes=False)
+@ get_user_from_jwt
+@ expects_json(validation_schemas.PATCH_MEMBER_PERMISSIONS)
+@ ApiError.wrap_exception(AssertionError, HTTPStatus.FORBIDDEN, f'You can not edit members in this chat')
 def patch_member_permissions(chat_id: int, user_id: int, user: User):
     chat = Chat.get_by_id(chat_id)
 
@@ -300,10 +300,10 @@ def patch_member_permissions(chat_id: int, user_id: int, user: User):
 
 
 # /chat/ /message
-@api.route('/chat/<int:chat_id>/message', methods=["POST"], strict_slashes=False)
-@get_user_from_jwt
-@expects_json(validation_schemas.SEND_MESSAGE)
-@ApiError.wrap_exception(AssertionError, HTTPStatus.FORBIDDEN, f'You can not send messages in this chat')
+@ api.route('/chat/<int:chat_id>/message', methods=["POST"], strict_slashes=False)
+@ get_user_from_jwt
+@ expects_json(validation_schemas.SEND_MESSAGE)
+@ ApiError.wrap_exception(AssertionError, HTTPStatus.FORBIDDEN, f'You can not send messages in this chat')
 def send_message(chat_id: int, user: User):
     chat = Chat.get_by_id(chat_id)
 
@@ -318,10 +318,10 @@ def send_message(chat_id: int, user: User):
     return ok(message.to_dict())
 
 
-@api.route('/chat/<int:chat_id>/message/<int:message_id>', methods=["PATCH"], strict_slashes=False)
-@get_user_from_jwt
-@expects_json(validation_schemas.UPDATE_MESSAGE)
-@ApiError.wrap_exception(AssertionError, HTTPStatus.FORBIDDEN, f'You can not edit this message')
+@ api.route('/chat/<int:chat_id>/message/<int:message_id>', methods=["PATCH"], strict_slashes=False)
+@ get_user_from_jwt
+@ expects_json(validation_schemas.UPDATE_MESSAGE)
+@ ApiError.wrap_exception(AssertionError, HTTPStatus.FORBIDDEN, f'You can not edit this message')
 def patch_message(chat_id: int, message_id: int, user: User):
     message = ChatMessage.get_by_id(message_id)
 
@@ -333,10 +333,10 @@ def patch_message(chat_id: int, message_id: int, user: User):
     return ok(message.to_dict())
 
 
-@api.route('/chat/<int:chat_id>/message/<int:message_id>', methods=["DELETE"], strict_slashes=False)
-@get_user_from_jwt
-@expects_json(validation_schemas.UPDATE_MESSAGE)
-@ApiError.wrap_exception(AssertionError, HTTPStatus.FORBIDDEN, f'You can not delete this message')
+@ api.route('/chat/<int:chat_id>/message/<int:message_id>', methods=["DELETE"], strict_slashes=False)
+@ get_user_from_jwt
+@ expects_json(validation_schemas.UPDATE_MESSAGE)
+@ ApiError.wrap_exception(AssertionError, HTTPStatus.FORBIDDEN, f'You can not delete this message')
 def delete_message(chat_id: int, message_id: int, user: User):
     message = ChatMessage.get_by_id(message_id)
     chat = Chat.get_by_id(chat_id)
@@ -347,8 +347,8 @@ def delete_message(chat_id: int, message_id: int, user: User):
     return ok()
 
 
-@api.route('/chat/<int:chat_id>/messages', methods=["GET"], strict_slashes=False)
-@get_user_from_jwt
+@ api.route('/chat/<int:chat_id>/messages', methods=["GET"], strict_slashes=False)
+@ get_user_from_jwt
 def get_messages(chat_id: int, user: User):
     chat = Chat.get_by_id(chat_id)
     ChatMember.get_by_chat_and_user(chat, user)
@@ -362,15 +362,15 @@ def get_messages(chat_id: int, user: User):
 
 
 # /event
-@api.route('/events', methods=["GET"], strict_slashes=False)
-@get_user_from_jwt
+@ api.route('/events', methods=["GET"], strict_slashes=False)
+@ get_user_from_jwt
 def get_events(user: User):
     return ok([el.to_dict() for el in user.get_unread_events()])
 
 
-@api.route('/events', methods=['DELETE'], strict_slashes=False)
-@get_user_from_jwt
-@expects_json(validation_schemas.READ_EVENTS)
+@ api.route('/events', methods=['DELETE'], strict_slashes=False)
+@ get_user_from_jwt
+@ expects_json(validation_schemas.READ_EVENTS)
 def read_events(user: User):
     user_events_ids = set([el.id() for el in list(user.get_unread_events())])
     closed = []
