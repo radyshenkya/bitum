@@ -163,16 +163,15 @@ def search_bots():
 def upload_file(user: User):
     files = []
 
-    for name, file in request.files.items():
+    for name, file in list(request.files.items())[:10]:
         content = file.stream.read()
         assert len(content) <= MAX_FILE_SIZE_IN_BYTES
         file_name = f'{sha1(content).hexdigest()}.{file.filename.split(".")[-1]}'
 
         with open(f"{API_FILES_SAVE_PATH}/{file_name}", 'wb') as f:
+            files.append(file_name)
             f.write(content)
             f.flush()
-
-        files.append(file_name)
 
     return ok(files)
 
