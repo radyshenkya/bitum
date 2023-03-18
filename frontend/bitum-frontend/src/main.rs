@@ -1,11 +1,12 @@
 mod api;
 mod components;
+mod constants;
 mod routes;
 use routes::Route;
 use yew::prelude::*;
 use yew_router::{BrowserRouter, Switch};
 
-use crate::{routes::switch, components::ToastContainer};
+use crate::{components::ToastContainer, routes::switch};
 
 pub const TOAST_CONTAINER_ID: &str = "toasts-container";
 

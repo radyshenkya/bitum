@@ -30,3 +30,11 @@
 .index-text {
     padding: 50px;
 }
+
+.grow-on-hover {
+    transition: all .1s ease-in-out;
+}
+
+.grow-on-hover:hover {
+    transform: scale(1.05);
+}

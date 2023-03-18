@@ -94,3 +94,20 @@ pub async fn new_chat(new_chat_requests: NewChatRequest) -> Result<Response<Chat
 
     Ok(response)
 }
+
+pub async fn get_chats() -> Result<Response<Vec<Chat>>, ApiCallError> {
+    let response: Response<Vec<Chat>> = Request::get(&endpoint("/chats"))
+        .credentials(web_sys::RequestCredentials::Include)
+        .send()
+        .await
+        .map_err(|e| ApiCallError {
+            message: e.to_string(),
+        })?
+        .json()
+        .await
+        .map_err(|e| ApiCallError {
+            message: e.to_string(),
+        })?;
+
+    Ok(response)
+}
