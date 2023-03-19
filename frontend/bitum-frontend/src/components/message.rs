@@ -1,4 +1,5 @@
 use bitum_frontend::{display_timestamp_date, parse_markdown_to_html};
+use log::info;
 use yew::prelude::*;
 
 use crate::components::{LoggedUserInfo, RawHtml};
@@ -15,14 +16,16 @@ pub fn ChatMessage(props: &ChatMessageProps) -> Html {
     let message = message.clone();
     let user = use_context::<LoggedUserInfo>().unwrap().user.unwrap();
 
+    info!("{:?}", message);
+
     html! {
         <>
-            <div class="row col-12 p-0">
+            <div class="d-flex">
                 if message.sender.id == user.id {
                     <div class="col-lg-1 d-none d-lg-block d-md-none"></div>
                 }
 
-                <div class="message col-lg-11 col-md-12 g-col-6">
+                <div class="message col-lg-11 col-12 g-col-6">
                     <div class="message-header d-flex">
                         <img src={format!("/api/files/{}", message.sender.icon.unwrap_or("null.png".to_string()))} class="border rounded-4 rounded-end-0 rounded-bottom-0" width=60px />
                         <div class="message-header-text justify-content-between rounded-4 rounded-start-0 rounded-bottom-0 p-2 d-flex align-items-center bg-body-secondary flex-grow-1">

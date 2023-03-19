@@ -8,7 +8,7 @@ use crate::{
         get_chat, get_messages, send_message, Chat, ChatMessage as ApiChatMessage,
         SendMessageRequest,
     },
-    components::{ChatMessage, ErrorMessage, Footer, Header},
+    components::{ChatMessage, ErrorMessage, Header},
     constants::API_REFRESH_MILLIS,
 };
 
@@ -137,14 +137,15 @@ pub fn ChatRoute(props: &ChatRouteProps) -> Html {
             <div class="row">
                 <div class="col-lg-8 col-md-12 gy-3">
                     <div class="row gx-1">
-                        <div class="col-lg-10 col-md-12 p-1">
+                        <div class="col-lg-9 col-md-12 p-0">
                             <textarea ref={message_input_node} type="type" placeholder="Сообщение" class="form-control" />
                         </div>
+                        <div class="col-1 d-none d-md-none d-lg-block"></div>
                         <div class="col-lg-2 col-md-12 p-0">
-                            <button onclick={on_submit} class="col-12 btn btn-outline-success">{"Отправить"}</button>
+                            <button onclick={on_submit} class="col-12 m-0 btn btn-outline-success">{"Отправить"}</button>
                         </div>
                     </div>
-                    <div class="col-12 overflow-x-scroll">
+                    <div class="col-12 overflow-y-scroll overflow-x-hidden">
                         { for (*messages_state).iter().map(|message| html! {
                             <ChatMessage message={message.clone()}  />
                         }) }
@@ -155,7 +156,6 @@ pub fn ChatRoute(props: &ChatRouteProps) -> Html {
                 </div>
             </div>
 
-            <Footer/>
             if let Some(err) = (*error_message_state).clone() {
                 <ErrorMessage
                     on_close={

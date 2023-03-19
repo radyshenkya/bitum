@@ -1,13 +1,14 @@
 use chrono::{Datelike, TimeZone, Timelike, Utc};
-use pulldown_cmark::{
-    html, Options, Parser,
-};
+use log::info;
+use pulldown_cmark::{html, Options, Parser};
 
 pub fn display_timestamp_date(timestamp: i64) -> String {
+    info!("{}", timestamp);
+
     let date_time = Utc.timestamp_millis_opt(timestamp).unwrap();
 
     format!(
-        "{:02}/{:02}/{:04} {:02}:{:02}",
+        "{:02}/{:02}/{:02} {:02}:{:02}",
         date_time.day(),
         date_time.month(),
         date_time.year(),

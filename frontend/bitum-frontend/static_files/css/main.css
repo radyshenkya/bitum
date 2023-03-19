@@ -42,3 +42,17 @@
 .message {
     margin-top: 20px;
 }
+
+/* https://css-tricks.com/almanac/properties/t/text-overflow/ */
+.text-overflow-ellipsis {
+    text-overflow: ellipsis;
+
+    /* Required for text-overflow to do anything */
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.message-body img {
+    max-width: 60%;
+    border-radius: 10px;
+}
