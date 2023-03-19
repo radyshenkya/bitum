@@ -181,3 +181,28 @@ pub async fn get_messages(
 
     Ok(response)
 }
+
+pub async fn send_message(
+    chat_id: i32,
+    send_message_request: SendMessageRequest,
+) -> Result<Response<ChatMessage>, ApiCallError> {
+    let response: Response<ChatMessage> =
+        Request::post(&endpoint(&format!("/chat/{}/message", chat_id)))
+            .credentials(web_sys::RequestCredentials::Include)
+            .json(&send_message_request)
+            .map_err(|e| ApiCallError {
+                message: e.to_string(),
+            })?
+            .send()
+            .await
+            .map_err(|e| ApiCallError {
+                message: e.to_string(),
+            })?
+            .json()
+            .await
+            .map_err(|e| ApiCallError {
+                message: e.to_string(),
+            })?;
+
+    Ok(response)
+}

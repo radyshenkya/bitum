@@ -1,9 +1,13 @@
 use gloo_timers::future::TimeoutFuture;
 use wasm_bindgen_futures::spawn_local;
+use web_sys::HtmlTextAreaElement;
 use yew::prelude::*;
 
 use crate::{
-    api::{get_chat, get_messages, Chat, ChatMessage as ApiChatMessage},
+    api::{
+        get_chat, get_messages, send_message, Chat, ChatMessage as ApiChatMessage,
+        SendMessageRequest,
+    },
     components::{ChatMessage, ErrorMessage, Footer, Header},
     constants::API_REFRESH_MILLIS,
 };
@@ -18,6 +22,7 @@ pub fn ChatRoute(props: &ChatRouteProps) -> Html {
     let ChatRouteProps { chat_id } = props;
     let error_message_state = use_state(|| Option::<String>::None);
     let chat_state = use_state(|| Option::<Chat>::None);
+    let message_input_node = use_node_ref();
     let messages_state = use_state(|| Vec::<ApiChatMessage>::new());
 
     {
@@ -73,6 +78,50 @@ pub fn ChatRoute(props: &ChatRouteProps) -> Html {
         });
     }
 
+    let on_submit = {
+        let message_input_node = message_input_node.clone();
+        let error_message_state = error_message_state.clone();
+        let chat_id = chat_id.clone();
+
+        Callback::from(move |_: MouseEvent| {
+            let message_input_node = message_input_node.clone();
+            let error_message_state = error_message_state.clone();
+            let chat_id = chat_id.clone();
+
+            spawn_local(async move {
+                let message_input_node = message_input_node
+                    .clone()
+                    .cast::<HtmlTextAreaElement>()
+                    .unwrap();
+                let error_message_state = error_message_state.clone();
+                let chat_id = chat_id.clone();
+
+                if message_input_node.value().is_empty() {
+                    return;
+                }
+
+                let response = send_message(
+                    chat_id,
+                    SendMessageRequest {
+                        content: message_input_node.value(),
+                        files: Vec::new(),
+                    },
+                )
+                .await;
+
+                if let Ok(response) = response {
+                    if !response.ok {
+                        error_message_state.set(Some("Не удалось отправить сообщение".to_string()));
+                    }
+                } else {
+                    error_message_state.set(Some("Сервер не отвечает".to_string()));
+                }
+
+                message_input_node.set_value("");
+            });
+        })
+    };
+
     html! {
         <>
             <Header/>
@@ -87,14 +136,14 @@ pub fn ChatRoute(props: &ChatRouteProps) -> Html {
 
             <div class="row">
                 <div class="col-lg-8 col-md-12 gy-3">
-                    <form class="row gx-1">
+                    <div class="row gx-1">
                         <div class="col-lg-10 col-md-12 p-1">
-                            <textarea type="type" placeholder="Сообщение" class="form-control" />
+                            <textarea ref={message_input_node} type="type" placeholder="Сообщение" class="form-control" />
                         </div>
                         <div class="col-lg-2 col-md-12 p-0">
-                            <button type="submit" class="btn btn-outline-success">{"Отправить"}</button>
+                            <button onclick={on_submit} class="col-12 btn btn-outline-success">{"Отправить"}</button>
                         </div>
-                    </form>
+                    </div>
                     <div class="col-12 overflow-x-scroll">
                         { for (*messages_state).iter().map(|message| html! {
                             <ChatMessage message={message.clone()}  />

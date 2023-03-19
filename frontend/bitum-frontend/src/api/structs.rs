@@ -87,3 +87,9 @@ pub struct NewChatRequest {
     pub name: String,
     pub icon_file: Option<String>,
 }
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct SendMessageRequest {
+    pub content: String,
+    pub files: Vec<String>,
+}
