@@ -114,7 +114,7 @@ def search_users():
 @get_user_from_jwt
 @only_user
 def create_bot(user: User):
-    return ok(User.new_bot(request.json['username'], user).to_dict())
+    return ok(User.new_bot(request.json['username'], user, request.json.get('icon_file', None)).to_dict())
 
 
 @api.route('/bot/<int:bot_id>', methods=['DELETE'], strict_slashes=False)

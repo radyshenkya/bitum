@@ -48,7 +48,7 @@ CREATE_BOT = {
     'type': 'object',
     'properties': {
         'username': {'type': 'string', 'minLength': 1, 'maxLength': 100},
-        'icon_file': {'type': 'string', 'minLength': 4, 'maxLength': 400, 'default': None}
+        'icon_file': {'type': ["string", "null"], 'minLength': 4, 'maxLength': 400, 'default': None}
     },
     'required': [
         'username'
