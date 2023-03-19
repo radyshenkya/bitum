@@ -6,8 +6,9 @@ pub struct FooterProps {}
 #[function_component]
 pub fn Footer(props: &FooterProps) -> Html {
     let FooterProps {} = props;
+
     html! {
-        <footer class="fixed-bottom footer d-flex text-center justify-content-center align-items-center">
+        <footer class="fixed-bottom footer d-none d-md-none d-lg-flex text-center justify-content-center align-items-center">
             <div class="p-3 fs-4">
                 <a href="https://github.com/radyshenkya" target="blank" class="text-decoration-none text-light-emphasis">{"мой github"}</a>
             </div>

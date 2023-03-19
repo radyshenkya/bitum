@@ -1,8 +1,10 @@
+pub mod chat;
 pub mod chats;
 pub mod index;
 pub mod login;
 pub mod register;
 
+use chat::ChatRoute;
 use chats::ChatsRoute;
 use index::IndexRoute;
 use login::LoginRoute;
@@ -37,7 +39,11 @@ pub fn switch(routes: Route) -> Html {
                 <ChatsRoute/>
             </LoginOrRedirect>
         },
-        Route::Chat { id } => html! {<h1>{"Chat/"}{id}</h1>},
+        Route::Chat { id } => html! {
+            <LoginOrRedirect>
+                <ChatRoute chat_id={id} />
+            </LoginOrRedirect>
+        },
         Route::Login => html! {<LoginRoute />},
         Route::Register => html! {<RegisterRoute />},
         Route::NotFound => html! {<h1>{"Not found!"}</h1>},

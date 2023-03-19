@@ -56,10 +56,10 @@ pub fn ChatsRoute(props: &ChatsRouteProps) -> Html {
                 {
                     for (*chats_state).iter().map(|chat| {
                         html! {
-                            <div class="col-4 p-2">
+                            <div class="col-lg-4 col-md-12 p-2">
                                 <Link<Route> classes="text-decoration-none d-flex grow-on-hover" to={Route::Chat {id: chat.id.clone()}}>
-                                    <img class="rounded-start-2" width=60px src={format!("/api/files/{}", chat.icon.clone().unwrap_or("null.png".to_string()))} alt="Chat icon"/>
-                                    <div class="rounded-end-2 d-flex border border-left-0 bg-white flex-grow-1 align-items-center">
+                                    <img class="rounded-start-2 border" width=60px src={format!("/api/files/{}", chat.icon.clone().unwrap_or("null.png".to_string()))} alt="Chat icon"/>
+                                    <div class="rounded-end-2 d-flex border border-start-0 bg-white flex-grow-1 align-items-center">
                                         <div class="p-3 fs-4 text-dark fw-normal">
                                             {chat.name.clone()}
                                         </div>

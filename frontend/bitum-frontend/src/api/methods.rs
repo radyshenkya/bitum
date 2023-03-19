@@ -1,11 +1,9 @@
 use gloo_net::http::Request;
-use log::info;
-use wasm_bindgen_futures::JsFuture;
 use web_sys::{Blob, File, FormData};
 
 use super::*;
 
-const API_PREFIX: &str = "http://0.0.0.0:8000/api";
+const API_PREFIX: &str = "/api";
 
 fn endpoint(method: &str) -> String {
     format!("{}{}", API_PREFIX, method)
@@ -115,26 +113,9 @@ pub async fn get_chats() -> Result<Response<Vec<Chat>>, ApiCallError> {
     Ok(response)
 }
 
-pub async fn upload_file(file: File) -> Result<Response<Vec<String>>, ApiCallError> {
-    let form_data = FormData::new().unwrap();
-    // let blob = JsFuture::from(file.array_buffer())
-    //     .await
-    //     .map_err(|e| ApiCallError {
-    //         message: format!("{:?}", e),
-    //     })?;
-
-    form_data
-        .append_with_blob("file", &Blob::from(file.clone()))
-        .map_err(|e| ApiCallError {
-            message: format!("{:?}", e),
-        })?;
-
-    let response: Response<Vec<String>> = Request::post(&endpoint("/files/"))
+pub async fn get_chat(chat_id: i32) -> Result<Response<Chat>, ApiCallError> {
+    let response: Response<Chat> = Request::get(&endpoint(&format!("/chat/{}", chat_id)))
         .credentials(web_sys::RequestCredentials::Include)
-        .body(form_data)
-        // .map_err(|e| ApiCallError {
-        //     message: e.to_string(),
-        // })?
         .send()
         .await
         .map_err(|e| ApiCallError {
@@ -145,6 +126,58 @@ pub async fn upload_file(file: File) -> Result<Response<Vec<String>>, ApiCallErr
         .map_err(|e| ApiCallError {
             message: e.to_string(),
         })?;
+
+    Ok(response)
+}
+
+pub async fn upload_file(file: File) -> Result<Response<Vec<String>>, ApiCallError> {
+    let form_data = FormData::new().unwrap();
+
+    form_data
+        .append_with_blob("file", &Blob::from(file.clone()))
+        .map_err(|e| ApiCallError {
+            message: format!("{:?}", e),
+        })?;
+
+    let response: Response<Vec<String>> = Request::post(&endpoint("/files/"))
+        .credentials(web_sys::RequestCredentials::Include)
+        .body(form_data)
+        .send()
+        .await
+        .map_err(|e| ApiCallError {
+            message: e.to_string(),
+        })?
+        .json()
+        .await
+        .map_err(|e| ApiCallError {
+            message: e.to_string(),
+        })?;
+
+    Ok(response)
+}
+
+pub async fn get_messages(
+    chat_id: i32,
+    limit: i32,
+    offset: i32,
+) -> Result<Response<Vec<ChatMessage>>, ApiCallError> {
+    let response: Response<Vec<ChatMessage>> =
+        Request::get(&endpoint(&format!("/chat/{}/messages", chat_id)))
+            .credentials(web_sys::RequestCredentials::Include)
+            .query([
+                ("limit", format!("{}", limit)),
+                ("offset", format!("{}", offset)),
+            ])
+            .send()
+            .await
+            .map_err(|e| ApiCallError {
+                message: e.to_string(),
+            })?
+            .json()
+            .await
+            .map_err(|e| ApiCallError {
+                message: e.to_string(),
+            })?;
 
     Ok(response)
 }

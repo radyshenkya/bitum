@@ -1,3 +1,4 @@
+from os import environ
 from hashlib import sha1
 from http import HTTPStatus
 from models.interfaces import ApiError
@@ -12,13 +13,15 @@ from flask_cors import CORS
 from flask_expects_json import expects_json
 from flask import Blueprint, request, send_from_directory
 
+
 api = Blueprint('api', __name__)
-cors = CORS(api, )
+cors = CORS(api)
 
 bind_errors(api)
 
-
 # /user
+
+
 @api.route('/user', methods=['GET'], strict_slashes=False)
 @get_user_from_jwt
 def get_my_user(user: User):
@@ -205,6 +208,15 @@ def patch_chat(chat_id: int, user: User):
     chat.set_name(json_request.get('name', chat.name()))
     chat.set_owner(new_owner)
     chat.set_icon(json_request.get('icon_file', chat.icon()))
+
+    return ok(chat.to_dict())
+
+
+@ api.route('/chat/<int:chat_id>', methods=['GET'], strict_slashes=False)
+@ get_user_from_jwt
+def get_chat(chat_id: int, user: User):
+    chat = Chat.get_by_id(chat_id)
+    user_member = ChatMember.get_by_chat_and_user(chat, user)
 
     return ok(chat.to_dict())
 

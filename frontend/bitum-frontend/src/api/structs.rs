@@ -9,7 +9,7 @@ pub struct User {
     pub created_at: f64,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, PartialEq, Deserialize, Debug, Clone)]
 pub struct Chat {
     pub id: i32,
     pub name: String,
@@ -33,13 +33,14 @@ pub struct ChatMember {
     pub permissions: ChatMemberPermissions,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, PartialEq, Deserialize, Debug, Clone)]
 pub struct ChatMessage {
     pub id: i32,
     pub sender: User,
     pub chat: Chat,
     pub content: String,
     pub files: Vec<String>,
+    pub created_at: f64,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

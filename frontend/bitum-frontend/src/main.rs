@@ -1,6 +1,7 @@
 mod api;
 mod components;
 mod constants;
+// pub mod lib;
 mod routes;
 use routes::Route;
 use yew::prelude::*;

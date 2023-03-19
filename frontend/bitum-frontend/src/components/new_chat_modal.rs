@@ -1,9 +1,7 @@
-use futures::Future;
-use log::info;
 use wasm_bindgen_futures::spawn_local;
-use web_sys::{FileList, HtmlInputElement};
+use web_sys::HtmlInputElement;
 use yew::prelude::*;
-use yew_router::{navigator, prelude::use_navigator};
+use yew_router::prelude::use_navigator;
 
 use crate::{
     api::{new_chat, upload_file, NewChatRequest},
@@ -66,8 +64,6 @@ pub fn NewChatModalButton(props: &NewChatModalButtonProps) -> Html {
                 if let Some(icon_file) = files.get(0) {
                     let error_message_state = error_message_state.clone();
 
-                    info!("{:?}", icon_file.value_of());
-
                     spawn_local(async move {
                         let response = upload_file(icon_file).await;
 
@@ -76,7 +72,6 @@ pub fn NewChatModalButton(props: &NewChatModalButtonProps) -> Html {
                                 error_message_state.set(Some("Что-то пошло не так".to_string()));
                             } else {
                                 icon_name_state.set(response.data.unwrap().get(0).cloned());
-                                info!("{:?}", icon_name_state);
                             }
                         } else {
                             error_message_state.set(Some("Сервер не отвечает".to_string()));
