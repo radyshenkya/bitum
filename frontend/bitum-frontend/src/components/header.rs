@@ -1,3 +1,4 @@
+use bitum_frontend::get_random_color_image_url;
 use yew::prelude::*;
 use yew_router::prelude::Link;
 
@@ -42,9 +43,15 @@ pub fn Header(props: &HeaderProps) -> Html {
 
                     <div class="col-md-3 col-sm-12 d-flex text-center justify-content-center align-items-center">
                         <div class="fs-3 fw-medium p-5">
-                            {user.username}
+                            {user.username.clone()}
                         </div>
-                        <img src={format!("/api/files/{}", user.icon.unwrap_or("null.png".to_string()))} class="rounded" width=70px alt="Icon" />
+                        <img src={
+                            if user.icon.is_some() {
+                                format!("/api/files/{}", user.icon.unwrap_or("null.png".to_string()))
+                            } else {
+                                get_random_color_image_url(user.username.clone(), 60, 60)
+                            }
+                        } class="rounded" width=70px alt="Icon" />
                     </div>
                 }
             }

@@ -1,5 +1,4 @@
-use bitum_frontend::{display_timestamp_date, parse_markdown_to_html};
-use log::info;
+use bitum_frontend::{display_timestamp_date, get_random_color_image_url, parse_markdown_to_html};
 use yew::prelude::*;
 
 use crate::components::{LoggedUserInfo, RawHtml};
@@ -16,8 +15,6 @@ pub fn ChatMessage(props: &ChatMessageProps) -> Html {
     let message = message.clone();
     let user = use_context::<LoggedUserInfo>().unwrap().user.unwrap();
 
-    info!("{:?}", message);
-
     html! {
         <>
             <div class="d-flex">
@@ -27,7 +24,13 @@ pub fn ChatMessage(props: &ChatMessageProps) -> Html {
 
                 <div class="message col-lg-11 col-12 g-col-6">
                     <div class="message-header d-flex">
-                        <img src={format!("/api/files/{}", message.sender.icon.unwrap_or("null.png".to_string()))} class="border rounded-4 rounded-end-0 rounded-bottom-0" width=60px />
+                        <img src={
+                            if message.sender.icon.is_some() {
+                                format!("/api/files/{}", message.sender.icon.unwrap_or("null.png".to_string()))
+                            } else {
+                                get_random_color_image_url(message.sender.username.clone(), 60, 60)
+                            }
+                        } class="border rounded-4 rounded-end-0 rounded-bottom-0" width=60px />
                         <div class="message-header-text justify-content-between rounded-4 rounded-start-0 rounded-bottom-0 p-2 d-flex align-items-center bg-body-secondary flex-grow-1">
                             <div class="fs-5 fw-normal">
                                 { message.sender.username }

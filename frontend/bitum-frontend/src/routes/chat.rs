@@ -1,3 +1,4 @@
+use bitum_frontend::get_random_color_image_url;
 use gloo_timers::future::TimeoutFuture;
 use wasm_bindgen_futures::spawn_local;
 use web_sys::HtmlTextAreaElement;
@@ -123,7 +124,13 @@ pub fn ChatRoute(props: &ChatRouteProps) -> Html {
             <Header/>
             if let Some(chat) = (*chat_state).clone() {
                 <h1 class="fw-medium fs-1">
-                    <img width=60px class="rounded-3" src={format!("/api/files/{}", chat.icon.unwrap_or("null.png".to_string()))} />
+                    <img width=60px class="rounded-3" src={
+                        if chat.icon.is_some() {
+                            format!("/api/files/{}", chat.icon.unwrap_or("null.png".to_string()))
+                        } else {
+                            get_random_color_image_url(chat.name.clone(), 75, 75)
+                        }
+                    } />
                     <span class="p-3">
                         {chat.name}
                     </span>
@@ -131,7 +138,7 @@ pub fn ChatRoute(props: &ChatRouteProps) -> Html {
             }
 
             <div class="row">
-                <div class="col-lg-8 col-md-12 gy-3">
+                <div class="col-lg-9 col-md-12 gy-3">
                     <div class="row gx-1">
                         <div class="col-lg-9 col-md-12 p-0">
                             <textarea ref={message_input_node} type="type" placeholder="Сообщение" class="form-control" />
@@ -141,14 +148,34 @@ pub fn ChatRoute(props: &ChatRouteProps) -> Html {
                             <button onclick={on_submit} class="col-12 m-0 btn btn-outline-success">{"Отправить"}</button>
                         </div>
                     </div>
-                    <div class="col-12 overflow-y-scroll overflow-x-hidden">
+                    <div class="col-12 overflow-y-scroll overflow-x-hidden align-items-center">
                         { for (*messages_state).iter().map(|message| html! {
                             <ChatMessage message={message.clone()}  />
                         }) }
                     </div>
                 </div>
-                <div class="col-lg-4 col-md-12">
-                    {"aboba"}
+
+                <div class="col-lg-3 col-md-12 gy-3">
+                    <div class="d-flex justify-content-between">
+                        <h2 class="fs-2">
+                            {"Участники"}
+                        </h2>
+                        <i class="bi bi-person-plus-fill grow-on-hover fs-3"></i>
+                    </div>
+                    <div class="d-flex grow-on-hover">
+                        <img class="rounded-start-4 border object-fit-scale" height=60px src={
+                            // if Option.is_some() {
+                            //    format!("/api/files/{}", message.sender.icon.unwrap_or("null.png".to_string()))
+                            // } else {
+                                get_random_color_image_url("Aboba".to_string(), 60, 60)
+                            // }
+                        } alt="icon"/>
+                        <div class="rounded-end-4 text-overflow-ellipsis d-flex border border-start-0 bg-white flex-grow-1 align-items-center">
+                            <div class="p-3 fs-5 text-dark fw-normal">
+                                {"Aboba"}
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
