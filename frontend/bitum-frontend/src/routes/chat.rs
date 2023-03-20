@@ -58,10 +58,6 @@ pub fn ChatRoute(props: &ChatRouteProps) -> Html {
         let messages_state = messages_state.clone();
 
         spawn_local(async move {
-            let error_message_state = error_message_state.clone();
-            let chat_id = chat_id.clone();
-            let messages_state = messages_state.clone();
-
             TimeoutFuture::new(API_REFRESH_MILLIS).await;
 
             let response = get_messages(chat_id, 40, 0).await;
