@@ -286,6 +286,16 @@ def get_chat_member_info(chat_id: int, user_id: int, user: User):
     return ok(chat_member.to_dict())
 
 
+@ api.route('/chat/<int:chat_id>/members', methods=["GET"], strict_slashes=False)
+@ get_user_from_jwt
+def get_chat_members(chat_id: int, user: User):
+    chat = Chat.get_by_id(chat_id)
+
+    ChatMember.get_by_chat_and_user(chat, user)
+
+    return ok([el.to_dict() for el in chat.members()])
+
+
 @ api.route('/chat/<int:chat_id>/member/<int:user_id>', methods=["PATCH"], strict_slashes=False)
 @ get_user_from_jwt
 @ expects_json(validation_schemas.PATCH_MEMBER_PERMISSIONS)
