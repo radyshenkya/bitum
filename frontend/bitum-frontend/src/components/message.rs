@@ -33,6 +33,10 @@ pub fn ChatMessage(props: &ChatMessageProps) -> Html {
                         } class="border rounded-4 rounded-end-0 rounded-bottom-0" width=60px />
                         <div class="message-header-text justify-content-between rounded-4 rounded-start-0 rounded-bottom-0 p-2 d-flex align-items-center bg-body-secondary flex-grow-1">
                             <div class="fs-5 fw-normal">
+                                if message.sender.is_bot {
+                                    <span class="badge rounded-pill text-bg-dark">{"бот"}</span>
+                                    {" "}
+                                }
                                 { message.sender.username }
                             </div>
                             <div class="fs-5 p-2 text-body-secondary fw-light">
@@ -40,7 +44,7 @@ pub fn ChatMessage(props: &ChatMessageProps) -> Html {
                             </div>
                         </div>
                     </div>
-                    <div class="p-3 message-body border border-top-0 rounded-4 rounded-top-0">
+                    <div class="p-3 bg-body message-body border border-top-0 rounded-4 rounded-top-0">
                         <RawHtml html={parse_markdown_to_html(message.content)} />
                     </div>
                 </div>

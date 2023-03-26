@@ -43,6 +43,10 @@
     margin-top: 20px;
 }
 
+.chat-member-button {
+    margin-bottom: 10px;
+}
+
 /* https://css-tricks.com/almanac/properties/t/text-overflow/ */
 .text-overflow-ellipsis {
     text-overflow: ellipsis;
@@ -55,4 +59,17 @@
 .message-body img {
     max-width: 70%;
     border-radius: 10px;
+}
+
+.chat-messages-list {
+    height: 80vh;
+    margin-bottom: 100px;
+    margin-top: 50px;
+    padding: 10px;
+}
+
+.add-member-list-modal {
+    max-height: 300px;
+    overflow-y: scroll;
+    overflow-x: hidden;
 }

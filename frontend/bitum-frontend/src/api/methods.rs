@@ -1,4 +1,5 @@
 use gloo_net::http::Request;
+use serde_json::json;
 use web_sys::{Blob, File, FormData};
 
 use super::*;
@@ -203,6 +204,122 @@ pub async fn send_message(
             .map_err(|e| ApiCallError {
                 message: e.to_string(),
             })?;
+
+    Ok(response)
+}
+
+pub async fn get_chat_members(chat_id: i32) -> Result<Response<Vec<ChatMember>>, ApiCallError> {
+    let response: Response<Vec<ChatMember>> =
+        Request::get(&endpoint(&format!("/chat/{}/members", chat_id)))
+            .credentials(web_sys::RequestCredentials::Include)
+            .send()
+            .await
+            .map_err(|e| ApiCallError {
+                message: e.to_string(),
+            })?
+            .json()
+            .await
+            .map_err(|e| ApiCallError {
+                message: e.to_string(),
+            })?;
+
+    Ok(response)
+}
+
+pub async fn get_chat_member(
+    chat_id: i32,
+    user_id: i32,
+) -> Result<Response<ChatMember>, ApiCallError> {
+    let response: Response<ChatMember> =
+        Request::get(&endpoint(&format!("/chat/{}/member/{}", chat_id, user_id)))
+            .credentials(web_sys::RequestCredentials::Include)
+            .send()
+            .await
+            .map_err(|e| ApiCallError {
+                message: e.to_string(),
+            })?
+            .json()
+            .await
+            .map_err(|e| ApiCallError {
+                message: e.to_string(),
+            })?;
+
+    Ok(response)
+}
+
+pub async fn add_chat_member(
+    chat_id: i32,
+    user_id: i32,
+) -> Result<Response<ChatMember>, ApiCallError> {
+    let response: Response<ChatMember> =
+        Request::post(&endpoint(&format!("/chat/{}/member", chat_id)))
+            .credentials(web_sys::RequestCredentials::Include)
+            .json(&json!({ "user_id": user_id }))
+            .map_err(|e| ApiCallError {
+                message: e.to_string(),
+            })?
+            .send()
+            .await
+            .map_err(|e| ApiCallError {
+                message: e.to_string(),
+            })?
+            .json()
+            .await
+            .map_err(|e| ApiCallError {
+                message: e.to_string(),
+            })?;
+
+    Ok(response)
+}
+
+pub async fn search_users(
+    username: String,
+    limit: i32,
+    offset: i32,
+) -> Result<Response<Vec<User>>, ApiCallError> {
+    let response: Response<Vec<User>> = Request::get(&endpoint("/user/search"))
+        .credentials(web_sys::RequestCredentials::Include)
+        .query([
+            ("username", username),
+            ("limit", limit.to_string()),
+            ("offset", offset.to_string()),
+        ])
+        .send()
+        .await
+        .map_err(|e| ApiCallError {
+            message: e.to_string(),
+        })?
+        .json()
+        .await
+        .map_err(|e| ApiCallError {
+            message: e.to_string(),
+        })?;
+
+    Ok(response)
+}
+
+pub async fn search_bots(
+    username: String,
+    limit: i32,
+    offset: i32,
+) -> Result<Response<Vec<User>>, ApiCallError> {
+    let response: Response<Vec<User>> = Request::get(&endpoint("/bot/search"))
+        .credentials(web_sys::RequestCredentials::Include)
+        .query([
+            ("username", username),
+            ("limit", limit.to_string()),
+            ("offset", offset.to_string()),
+        ])
+        .send()
+        .await
+        .map_err(|e| ApiCallError {
+            message: e.to_string(),
+        })?
+        .json()
+        .await
+        .map_err(|e| ApiCallError {
+            message: e.to_string(),
+        })?;
 
     Ok(response)
 }

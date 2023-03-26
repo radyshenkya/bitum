@@ -18,14 +18,14 @@ pub struct Chat {
     pub created_at: f64,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, PartialEq, Debug, Clone)]
 pub struct ChatMemberPermissions {
     pub can_write: bool,
     pub can_add_members: bool,
     pub can_kick_members: bool,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub struct ChatMember {
     pub id: i32,
     pub user: User,
