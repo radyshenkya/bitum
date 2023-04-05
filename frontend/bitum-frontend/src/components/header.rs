@@ -31,13 +31,7 @@ pub fn Header(props: &HeaderProps) -> Html {
                             {"//"}
                         </div>
                         <div class="p-3 fs-5">
-                            <a href="#" class="text-decoration-none text-light-emphasis">{"Боты"}</a>
-                        </div>
-                        <div class="p-3 fs-4">
-                            {"//"}
-                        </div>
-                        <div class="p-3 fs-5">
-                            <a href="#" class="text-decoration-none text-light-emphasis">{"Мои боты"}</a>
+                            <Link<Route> classes="text-decoration-none text-light-emphasis" to={Route::MyBots}>{"Боты"}</Link<Route>>
                         </div>
                     </nav>
 

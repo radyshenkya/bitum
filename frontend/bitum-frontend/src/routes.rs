@@ -2,12 +2,14 @@ pub mod chat;
 pub mod chats;
 pub mod index;
 pub mod login;
+pub mod my_bots;
 pub mod register;
 
 use chat::ChatRoute;
 use chats::ChatsRoute;
 use index::IndexRoute;
 use login::LoginRoute;
+use my_bots::MyBotsRoute;
 use register::RegisterRoute;
 use yew::{html, Html};
 use yew_router::prelude::*;
@@ -26,6 +28,8 @@ pub enum Route {
     Login,
     #[at("/register")]
     Register,
+    #[at("/my_bots")]
+    MyBots,
     #[not_found]
     #[at("/404")]
     NotFound,
@@ -46,6 +50,11 @@ pub fn switch(routes: Route) -> Html {
         },
         Route::Login => html! {<LoginRoute />},
         Route::Register => html! {<RegisterRoute />},
+        Route::MyBots => html! {
+            <LoginOrRedirect>
+                <MyBotsRoute />
+            </LoginOrRedirect>
+        },
         Route::NotFound => html! {<h1>{"Not found!"}</h1>},
     }
 }

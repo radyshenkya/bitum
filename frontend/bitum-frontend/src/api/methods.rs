@@ -323,3 +323,42 @@ pub async fn search_bots(
 
     Ok(response)
 }
+
+pub async fn get_bots() -> Result<Response<Vec<User>>, ApiCallError> {
+    let response: Response<Vec<User>> = Request::get(&endpoint("/bots"))
+        .credentials(web_sys::RequestCredentials::Include)
+        .send()
+        .await
+        .map_err(|e| ApiCallError {
+            message: e.to_string(),
+        })?
+        .json()
+        .await
+        .map_err(|e| ApiCallError {
+            message: e.to_string(),
+        })?;
+
+    Ok(response)
+}
+
+
+pub async fn new_bot(username: String) -> Result<Response<User>, ApiCallError> {
+    let response = Request::post(&endpoint("/bot"))
+        .credentials(web_sys::RequestCredentials::Include)
+        .json(&json!({ "username": username }))
+        .map_err(|e| ApiCallError {
+            message: e.to_string(),
+        })?
+        .send()
+        .await
+        .map_err(|e| ApiCallError {
+            message: e.to_string(),
+        })?
+        .json()
+        .await
+        .map_err(|e| ApiCallError {
+            message: e.to_string(),
+        })?;
+
+    Ok(response)
+}
