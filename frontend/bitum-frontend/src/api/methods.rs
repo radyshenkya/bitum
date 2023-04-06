@@ -395,3 +395,20 @@ pub async fn delete_bot(id: i32) -> Result<Response<()>, ApiCallError> {
 
     Ok(response)
 }
+
+pub async fn delete_chat_member(chat_id: i32, user_id: i32) -> Result<Response<()>, ApiCallError> {
+    let response = Request::delete(&endpoint(&format!("/chat/{}/member/{}", chat_id, user_id)))
+        .credentials(web_sys::RequestCredentials::Include)
+        .send()
+        .await
+        .map_err(|e| ApiCallError {
+            message: e.to_string(),
+        })?
+        .json()
+        .await
+        .map_err(|e| ApiCallError {
+            message: e.to_string(),
+        })?;
+
+    Ok(response)
+}

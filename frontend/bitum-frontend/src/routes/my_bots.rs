@@ -1,7 +1,6 @@
 use bitum_frontend::get_random_color_image_url;
 use gloo_timers::future::TimeoutFuture;
 use wasm_bindgen_futures::spawn_local;
-use web_sys::HtmlInputElement;
 use yew::prelude::*;
 
 use crate::{
