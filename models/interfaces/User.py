@@ -11,7 +11,7 @@ class User:
     """
 
     @classmethod
-    def new(cls, username: str, password: str, email: str) -> "User":
+    def new(cls, username: str, password: str, email: str, icon_file: Union[str, None]) -> "User":
         raise NotImplementedError()
 
     @classmethod
@@ -27,7 +27,16 @@ class User:
     def email(self) -> str:
         raise NotImplementedError()
 
+    def icon(self) -> Union[str, None]:
+        raise NotImplementedError()
+
+    def set_icon(self, value: Union[str, None]):
+        raise NotImplementedError()
+
     def set_email(self, value: str):
+        raise NotImplementedError()
+
+    def created_timestamp(self) -> float:
         raise NotImplementedError()
 
     def compare_password(self, raw_password: str) -> bool:
@@ -81,5 +90,7 @@ class User:
         return {
             'id': self.id(),
             'username': self.username(),
-            'is_bot': self.is_bot()
+            'is_bot': self.is_bot(),
+            'created_at': self.created_timestamp(),
+            'icon': self.icon()
         }

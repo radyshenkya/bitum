@@ -1,4 +1,4 @@
-from typing import Iterable, TYPE_CHECKING, List
+from typing import Iterable, TYPE_CHECKING, List, Union
 from .User import User
 
 if TYPE_CHECKING:
@@ -12,7 +12,7 @@ class Chat:
     """
 
     @classmethod
-    def new(cls, name: str, owner: User):
+    def new(cls, name: str, owner: User, icon_file: Union[str, None] = None):
         raise NotImplementedError()
 
     def id(self) -> int:
@@ -25,6 +25,15 @@ class Chat:
         raise NotImplementedError()
 
     def set_name(self, value: str):
+        raise NotImplementedError()
+
+    def icon(self) -> Union[str, None]:
+        raise NotImplementedError()
+
+    def set_icon(self, value: Union[str, None]):
+        raise NotImplementedError()
+
+    def created_timestamp(self) -> float:
         raise NotImplementedError()
 
     def owner(self) -> User:
@@ -53,5 +62,7 @@ class Chat:
         return {
             'id': self.id(),
             'name': self.name(),
-            'owner': self.owner().to_dict()
+            'owner': self.owner().to_dict(),
+            'created_at': self.created_timestamp(),
+            'icon': self.icon()
         }

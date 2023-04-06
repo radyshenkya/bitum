@@ -29,7 +29,7 @@ class ChatMessage:
     def set_content(self, value: str):
         raise NotImplementedError()
 
-    def timestamp(self) -> float:
+    def created_timestamp(self) -> float:
         raise NotImplementedError()
 
     def delete(self):
@@ -45,5 +45,6 @@ class ChatMessage:
             'sender': self.sender().to_dict(),
             'chat': self.chat().to_dict(),
             'content': self.content(),
-            'files': [el for el in self.files()]
+            'files': [el for el in self.files()],
+            'created_at': self.created_timestamp()
         }

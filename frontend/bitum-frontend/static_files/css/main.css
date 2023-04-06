@@ -1,0 +1,91 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+
+:root {
+    --bs-font-sans-serif: 'Inter', sans-serif;
+}
+
+.btn {
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+.btn-light {
+    --bs-btn-bg: #EBEBEB;
+}
+
+.modal {
+    display: block !important;
+}
+
+.header {
+    margin-top: 40px;
+    margin-bottom: 50px;
+}
+
+/* Index */
+.index-logo {
+    margin-top: 100px;
+}
+
+.index-text {
+    padding: 50px;
+}
+
+.grow-on-hover {
+    transition: all .1s ease-in-out;
+}
+
+.grow-on-hover:hover {
+    transform: scale(1.05);
+}
+
+.message {
+    margin-top: 20px;
+}
+
+.chat-member-button {
+    margin-bottom: 10px;
+}
+
+/* https://css-tricks.com/almanac/properties/t/text-overflow/ */
+.text-overflow-ellipsis {
+    text-overflow: ellipsis;
+
+    /* Required for text-overflow to do anything */
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.message-body img {
+    max-width: 70%;
+    border-radius: 10px;
+}
+
+.chat-messages-list {
+    height: 80vh;
+    margin-bottom: 100px;
+    margin-top: 50px;
+    padding: 10px;
+}
+
+.add-member-list-modal {
+    max-height: 300px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+.danger-hover {
+    transition: all 0.2s;
+}
+
+.danger-hover:hover {
+    color: var(--bs-danger);
+}
+
+.info-hover {
+    transition: all 0.2s;
+}
+
+.info-hover:hover {
+    color: var(--bs-info);
+}

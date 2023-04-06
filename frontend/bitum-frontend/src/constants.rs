@@ -1,0 +1,1 @@
+pub const API_REFRESH_MILLIS: u32 = 1000;
