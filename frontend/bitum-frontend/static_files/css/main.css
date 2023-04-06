@@ -73,3 +73,19 @@
     overflow-y: scroll;
     overflow-x: hidden;
 }
+
+.danger-hover {
+    transition: all 0.2s;
+}
+
+.danger-hover:hover {
+    color: var(--bs-danger);
+}
+
+.info-hover {
+    transition: all 0.2s;
+}
+
+.info-hover:hover {
+    color: var(--bs-info);
+}

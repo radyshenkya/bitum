@@ -341,7 +341,6 @@ pub async fn get_bots() -> Result<Response<Vec<User>>, ApiCallError> {
     Ok(response)
 }
 
-
 pub async fn new_bot(username: String) -> Result<Response<User>, ApiCallError> {
     let response = Request::post(&endpoint("/bot"))
         .credentials(web_sys::RequestCredentials::Include)
@@ -349,6 +348,40 @@ pub async fn new_bot(username: String) -> Result<Response<User>, ApiCallError> {
         .map_err(|e| ApiCallError {
             message: e.to_string(),
         })?
+        .send()
+        .await
+        .map_err(|e| ApiCallError {
+            message: e.to_string(),
+        })?
+        .json()
+        .await
+        .map_err(|e| ApiCallError {
+            message: e.to_string(),
+        })?;
+
+    Ok(response)
+}
+
+pub async fn get_bot_token(id: i32) -> Result<Response<GetTokenResponseData>, ApiCallError> {
+    let response = Request::post(&endpoint(&format!("/bot/{}/token", id)))
+        .credentials(web_sys::RequestCredentials::Include)
+        .send()
+        .await
+        .map_err(|e| ApiCallError {
+            message: e.to_string(),
+        })?
+        .json()
+        .await
+        .map_err(|e| ApiCallError {
+            message: e.to_string(),
+        })?;
+
+    Ok(response)
+}
+
+pub async fn delete_bot(id: i32) -> Result<Response<()>, ApiCallError> {
+    let response = Request::delete(&endpoint(&format!("/bot/{}", id)))
+        .credentials(web_sys::RequestCredentials::Include)
         .send()
         .await
         .map_err(|e| ApiCallError {
