@@ -1,5 +1,7 @@
 #!/bin/bash
 
+FRONTEND_URL=https://cdn.discordapp.com/attachments/745573062279168050/1093706145794900088/dist.zip
+
 # Exit early on errors
 set -eu
 
@@ -21,18 +23,8 @@ fi
 
 $VIRTUALENV/bin/pip install -r requirements.txt
 
-# Setting up rust
-export RUSTUP_HOME=/tmp/rustup
-export CARGO_HOME=/tmp/cargo
-export CARGO_TARGET_DIR=/tmp/target
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-
-# Setting up trunk
-rustup target add wasm32-unknown-unknown
-cargo install trunk
-
-# Compiling frontend
-(cd frontend/bitum-frontend/ ; trunk build)
+# downloading frontend
+(cd frontend/bitum-frontend ; rm -rf dist ; wget ; unzip dist.zip)
 
 # Running app
-gunicorn --bind 0.0.0.0:8000 wsgi:app
+$VIRTUALENV/bin/python3 main.py
