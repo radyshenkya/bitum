@@ -24,7 +24,7 @@ fi
 $VIRTUALENV/bin/pip install -r requirements.txt
 
 # downloading frontend
-(cd frontend/bitum-frontend ; rm -rf dist ; wget ; unzip dist.zip)
+(cd frontend/bitum-frontend ; rm -rf dist ; wget $FRONTEND_URL ; unzip dist.zip)
 
 # Running app
 $VIRTUALENV/bin/python3 main.py
