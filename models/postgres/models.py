@@ -16,12 +16,12 @@ class User(IUser):
         self,
         id: int,
         username: str,
-        password: str | None = None,
-        email: str | None = None,
+        password: Union[str, None] = None,
+        email: Union[str, None] = None,
         is_bot: bool = False,
-        creator_id: int | None = None,
+        creator_id: Union[str, None] = None,
         last_login_timestamp: float = 0,
-        icon_file: str | None = None,
+        icon_file: Union[str, None] = None,
         created_timestamp: float = 0
     ) -> None:
         self._id = id
@@ -36,7 +36,7 @@ class User(IUser):
 
     @classmethod
     @ApiError.wrap_exception(peewee.IntegrityError, HTTPStatus.CONFLICT, "User already exists")
-    def new(cls, username: str, password: str, email: str, icon_file: str | None) -> "User":
+    def new(cls, username: str, password: str, email: str, icon_file: Union[str, None]) -> "User":
         hashed_password = hashpw(
             bytes(password, UTF_8), gensalt()).decode(UTF_8)
         new_user = DbUser.create(
@@ -50,7 +50,7 @@ class User(IUser):
 
     @classmethod
     @ApiError.wrap_exception(peewee.IntegrityError, HTTPStatus.CONFLICT, "Bot already exists")
-    def new_bot(cls, username: str, creator: "User", icon_file: str | None) -> "User":
+    def new_bot(cls, username: str, creator: "User", icon_file: Union[str, None]) -> "User":
         new_user = DbUser.create(
             username=username,
             creator_id=creator.id(),
@@ -176,7 +176,7 @@ class User(IUser):
 
 
 class Chat(IChat):
-    def __init__(self, id: int, name: str, owner_id: int, icon_file: str | None = None, created_timestamp: float = 0) -> None:
+    def __init__(self, id: int, name: str, owner_id: int, icon_file: Union[str, None] = None, created_timestamp: float = 0) -> None:
         self._id = id
         self._name = name
         self._owner_id = owner_id
@@ -190,7 +190,7 @@ class Chat(IChat):
         return self._name
 
     @classmethod
-    def new(cls, name: str, icon_file: str | None, owner: User):
+    def new(cls, name: str, icon_file: Union[str, None], owner: User):
         pg_chat = DbChat.create(
             name=name,
             owner_id=owner.id(),
