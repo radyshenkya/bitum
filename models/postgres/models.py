@@ -142,7 +142,7 @@ class User(IUser):
     @classmethod
     def search_bots(cls, username: str, offset: int = 0, limit: int = 10) -> Iterable["User"]:
         users = DbUser.select().where(
-            (DbUser.username % f'%{username}%') &
+            (DbUser.username ** f'%{username}%') &
             (DbUser.is_bot)
         ).offset(offset).limit(limit)
 
