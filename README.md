@@ -81,3 +81,14 @@ gunicorn --bind 0.0.0.0:8000 wsgi:app
 По необходимости меняем айпи сервера/порт.
 
 Готово!
+---
+# Тех. часть
+1. **[requirements.txt](https://github.com/radyshenkya/bitum/blob/main/requirements.txt)**
+2. **bootstrap** - подключается в файле [index.html](https://github.com/radyshenkya/bitum/blob/main/frontend/bitum-frontend/index.html) (и используется в последствии)
+3. **Шаблоны** - не используются
+4. **ORM-модели** - Описаны в файле [database.py](https://github.com/radyshenkya/bitum/blob/main/models/postgres/database.py). Используется библиотека Peewee.
+5. **Регистрация и авторизация** - для этого используются токены, и API методы `POST /api/user` (для регистрации / создания пользователя), `POST /api/user/token` (для создания токена пользователя по его имени и паролю).
+6. **Загрузка и использование файлов** - API метод `POST /api/files` - для загрузки файлов. В ответ возвращаются имена загруженных файлов на сервере. Получить эти файлы можно из эндпоинта `GET /files/<FILE_NAME>`
+7. **API: REST** - все методы API описаны в файле [api/endpoints.py](https://github.com/radyshenkya/bitum/blob/main/api/endpoints.py).
+8. **Хранение данных** - используется база данных PostgreSQL. Подключение к БД, как и модели ORM можно просмотреть в файле [database.py](https://github.com/radyshenkya/bitum/blob/main/models/postgres/database.py)
+9. **Хостинг** - сайт работает на хостинге [Glitch](https://glitch.com). [Ссылка на сам проект](https://bitumsite.glitch.me)
