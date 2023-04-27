@@ -84,7 +84,7 @@ gunicorn --bind 0.0.0.0:8000 wsgi:app
 ---
 # Тех. часть
 1. **[requirements.txt](https://github.com/radyshenkya/bitum/blob/main/requirements.txt)**
-2. **bootstrap** - подключается в файле [index.html](https://github.com/radyshenkya/bitum/blob/main/frontend/bitum-frontend/index.html) (и используется в последствии)
+2. **bootstrap** - подключается в файле [index.html](https://github.com/radyshenkya/bitum/blob/main/frontend/bitum-frontend/index.html) (и используется впоследствии)
 3. **Шаблоны** - не используются
 4. **ORM-модели** - Описаны в файле [database.py](https://github.com/radyshenkya/bitum/blob/main/models/postgres/database.py). Используется библиотека Peewee.
 5. **Регистрация и авторизация** - для этого используются токены, и API методы `POST /api/user` (для регистрации / создания пользователя), `POST /api/user/token` (для создания токена пользователя по его имени и паролю).
